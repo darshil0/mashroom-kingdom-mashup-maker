@@ -2,6 +2,19 @@
 
 All notable changes to the **Mushroom Kingdom Mashup Maker** will be documented in this file.
 
+### [1.7.1] - 2026-04-20
+
+#### Added
+- **50% HTML Initiative**: Migrated core structural UI elements (Scanlines, Static Grids) from React to semantic `index.html` for instant rendering.
+- **Static Documentation Suite**: Deployed a robust library of HTML technical manuals to the `public/` directory:
+    - `tech_specs.html`: System kernel and hardware processing specs.
+    - `lore.html`: Narrative archives on the origin of the Mashup Engine.
+    - `controls.html`: Semantic guide for input protocols.
+    - `api_reference.html`: Comprehensive technical documentation for developer integration.
+    - `archive_v1/v2.html`: Structural mapping data and coordinate logs.
+    - `sector_data.html`: Atmospheric and mapping telemetry.
+- **Data Link Integration**: Added a "System Data Link" hub in the footer for direct access to static HTML archives.
+
 ### [1.7.0] - 2026-04-20
 
 #### Added

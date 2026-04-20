@@ -6,6 +6,8 @@ A retro-inspired platformer and level editor enriched with AI level generation. 
 
 - **AI Level Generation**: Powered by the latest Gemini generative models. Generate infinite, customized levels using natural language prompts.
 - **Modern Technical Dashboard**: A cinematic "Mission Control" UI featuring scanlines, glassmorphism, and animated tech-borders.
+- **Hybrid Architecture (50% HTML)**: Optimized for performance and accessibility by blending React logic with high-speed semantic HTML structures.
+- **Extensive Technical Library**: Integrated on-board documentation covering lore, technical specifications, API references, and sector mapping logs.
 - **Multiple Characters**: Play as Mario, Luigi, Toad, or Peach, each with unique stats and special abilities.
   - **Mario**: Fire Cyclone (Spin attack)
   - **Luigi**: Ghost Dash (Phase through walls/enemies)
@@ -21,6 +23,7 @@ A retro-inspired platformer and level editor enriched with AI level generation. 
 
 - **Framework**: React.js with TypeScript
 - **Bundler**: Vite
+- **Architecture**: Hybrid React / Semantic HTML5 (50% Distribution)
 - **Styling**: Tailwind CSS
 - **Animations**: Motion (framer-motion)
 - **Icons**: Lucide React
