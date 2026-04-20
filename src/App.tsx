@@ -132,40 +132,49 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#111] text-white font-mono selection:bg-red-500 selection:text-white">
+    <div className="min-h-screen bg-[#050505] text-white font-mono selection:bg-red-500 selection:text-white relative overflow-hidden">
+      <div className="scanline" />
+      
+      {/* Background Grid */}
+      <div className="fixed inset-0 pointer-events-none opacity-[0.03]" 
+           style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', size: '20px 20px' }} />
+
       {/* Header */}
-      <header className="p-4 border-b border-white/10 flex justify-between items-center bg-black/50 backdrop-blur-md sticky top-0 z-50">
+      <header className="p-4 border-b border-white/10 flex justify-between items-center bg-black/40 backdrop-blur-xl sticky top-0 z-50">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center shadow-lg shadow-red-600/20">
+          <div className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center shadow-[0_0_20px_rgba(220,38,38,0.3)]">
             <Star className="text-white fill-white" size={24} />
           </div>
           <div>
-            <h1 className="text-xl font-black tracking-tighter uppercase italic">Kingdom Maker</h1>
-            <p className="text-[10px] text-white/50 font-bold uppercase tracking-widest">Mashup Edition v1.0.4</p>
+            <h1 className="text-xl font-black tracking-tighter uppercase italic leading-none">Kingdom Maker</h1>
+            <p className="text-[9px] text-white/40 font-black uppercase tracking-[0.3em] mt-1">Mashup Engine v1.6.0 // SYS_READY</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {mode !== 'MENU' && (
              <button 
               onClick={() => setMode('MENU')}
-              className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-full text-xs font-bold transition-all border border-white/10"
+              className="px-5 py-2 bg-white/5 hover:bg-white/10 rounded-full text-[10px] font-black tracking-widest transition-all border border-white/10 flex items-center gap-2"
              >
-               MENU
+               <Settings size={12} />
+               TERMINAL_EXIT
              </button>
           )}
-          <div className="px-4 py-2 bg-yellow-500/20 rounded-full flex items-center gap-2 border border-yellow-500/30">
-            <Coins size={14} className="text-yellow-400" />
-            <span className="text-sm font-bold text-yellow-400">{gameState.coins.toString().padStart(3, '0')}</span>
-          </div>
-          <div className="px-4 py-2 bg-blue-500/20 rounded-full flex items-center gap-2 border border-blue-500/30">
-            <Star size={14} className="text-blue-400" />
-            <span className="text-sm font-bold text-blue-400">{gameState.score.toString().padStart(6, '0')}</span>
+          <div className="flex bg-white/5 rounded-full p-1 border border-white/10 divide-x divide-white/10">
+            <div className="px-4 py-1.5 flex items-center gap-2">
+              <Coins size={14} className="text-yellow-400" />
+              <span className="text-xs font-black text-yellow-400 font-mono tracking-tighter">{gameState.coins.toString().padStart(3, '0')}</span>
+            </div>
+            <div className="px-4 py-1.5 flex items-center gap-2">
+              <Star size={14} className="text-blue-400" />
+              <span className="text-xs font-black text-blue-400 font-mono tracking-tighter">{gameState.score.toString().padStart(6, '0')}</span>
+            </div>
           </div>
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto p-6 space-y-8">
+      <main className="max-w-7xl mx-auto p-6 space-y-8 relative">
         <AnimatePresence>
           {isGenerating && (
             <motion.div 
@@ -189,125 +198,174 @@ export default function App() {
           {mode === 'MENU' && (
             <motion.div 
               key="menu"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="grid grid-cols-1 lg:grid-cols-2 gap-12 pt-10"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              className="grid grid-cols-1 lg:grid-cols-12 gap-12 pt-6"
             >
-              <div className="space-y-8">
-                <div className="space-y-4">
-                  <h2 className="text-6xl font-black italic tracking-tighter leading-none uppercase">
+              <div className="lg:col-span-7 space-y-12">
+                <div className="space-y-6">
+                   <div className="inline-flex px-3 py-1 bg-red-600/10 border border-red-500/20 rounded-full">
+                      <span className="text-[9px] font-black text-red-500 uppercase tracking-widest">v1.6.0 Stable // Auth: Level 4</span>
+                   </div>
+                  <h2 className="text-8xl font-black italic tracking-tighter leading-[0.85] uppercase">
                     Build. <br />
-                    <span className="text-red-500">Play.</span> <br />
+                    <span className="text-red-600">Play.</span> <br />
                     Remix.
                   </h2>
-                  <p className="text-white/60 text-lg leading-relaxed max-w-md">
-                    Create infinite Mushroom Kingdom levels with AI, or handcraft them with the retro editor. Choose your hero and dominate the world.
+                  <p className="text-white/40 text-base leading-relaxed max-w-lg font-medium border-l-2 border-white/10 pl-6">
+                    A high-performance retro platforming engine powered by Gemini AI. Design infinite worlds, share them with the sector, and master the mashup.
                   </p>
                 </div>
 
-                <div className="space-y-4">
-                  <div className="flex justify-between items-end">
-                    <label className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em]">Select Character</label>
-                    <span className="text-[10px] font-black text-red-500 uppercase tracking-widest">{CHARACTERS[character].name} Selected</span>
-                  </div>
-                  <div className="grid grid-cols-4 gap-3">
-                    {(Object.keys(CHARACTERS) as CharacterType[]).map((char) => (
-                      <button
-                        key={char}
-                        onClick={() => setCharacter(char)}
-                        className={`relative p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${
-                          character === char 
-                          ? 'bg-white/10 border-white shadow-[0_0_20px_rgba(255,255,255,0.1)]' 
-                          : 'bg-white/5 border-transparent hover:bg-white/10'
-                        }`}
-                      >
-                        <div className="w-12 h-12 rounded-lg" style={{ backgroundColor: CHARACTERS[char].color }} />
-                        <span className="text-[10px] font-bold uppercase">{CHARACTERS[char].name}</span>
-                        {character === char && (
-                          <div className="absolute -top-1 -right-1 w-4 h-4 bg-white rounded-full flex items-center justify-center shadow-lg">
-                            <Check size={10} className="text-black font-bold" />
-                          </div>
-                        )}
-                      </button>
-                    ))}
-                  </div>
+                <div className="space-y-6">
+                   <div className="flex justify-between items-end border-b border-white/5 pb-2">
+                     <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">Unit Identification</label>
+                     <span className="text-[10px] font-black text-red-500 uppercase tracking-widest">Active: {CHARACTERS[character].name}</span>
+                   </div>
+                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                     {(Object.keys(CHARACTERS) as CharacterType[]).map((char) => (
+                       <button
+                         key={char}
+                         onClick={() => setCharacter(char)}
+                         className={`relative overflow-hidden p-6 rounded-3xl border transition-all duration-300 flex flex-col items-start gap-4 group ${
+                           character === char 
+                           ? 'bg-white/10 border-white shadow-[0_0_40px_rgba(255,255,255,0.1)] -translate-y-1' 
+                           : 'bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/20'
+                         }`}
+                       >
+                         <div 
+                           className="w-12 h-12 rounded-2xl shadow-inner transition-transform group-hover:scale-110 flex items-center justify-center" 
+                           style={{ backgroundColor: CHARACTERS[char].color }} 
+                         >
+                            <User size={24} className="text-white/30" />
+                         </div>
+                         <div className="space-y-1 text-left">
+                            <span className="block text-xs font-black uppercase tracking-tight">{CHARACTERS[char].name}</span>
+                            <span className="block text-[8px] font-bold text-white/30 uppercase tracking-widest">MK_UNIT_0{(Object.keys(CHARACTERS).indexOf(char) + 1)}</span>
+                         </div>
+                         
+                         {character === char && (
+                           <motion.div layoutId="selection-badge" className="absolute top-4 right-4 w-6 h-6 bg-red-600 rounded-full flex items-center justify-center shadow-lg border-2 border-black">
+                             <Check size={12} className="text-white font-black" />
+                           </motion.div>
+                         )}
+                         <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                       </button>
+                     ))}
+                   </div>
                 </div>
 
                 <div className="flex flex-wrap gap-4 pt-4">
                   <button 
                     onClick={handleStartGame}
-                    className="group relative px-8 py-4 bg-red-600 hover:bg-red-500 rounded-2xl flex items-center gap-3 transition-all transform active:scale-95"
+                    className="group relative px-10 py-5 bg-red-600 hover:bg-red-500 rounded-[28px] flex items-center gap-4 transition-all transform active:scale-95 shadow-[0_20px_40px_rgba(220,38,38,0.2)]"
                   >
                     <Play className="fill-white" size={24} />
-                    <span className="text-xl font-black uppercase italic">Quick Play</span>
-                    <div className="absolute inset-0 bg-red-400/20 blur-xl rounded-2xl group-hover:blur-2xl transition-all -z-10" />
+                    <span className="text-2xl font-black uppercase italic tracking-tighter">Initiate_QuickPlay</span>
+                    <div className="absolute inset-0 bg-red-400/20 blur-xl rounded-[28px] group-hover:blur-2xl transition-all -z-10" />
                   </button>
                   <button 
                     onClick={startCampaign}
-                    className="px-8 py-4 bg-yellow-600 hover:bg-yellow-500 rounded-2xl flex items-center gap-3 transition-all"
+                    className="px-10 py-5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-[28px] flex items-center gap-4 transition-all"
                   >
-                    <Trophy size={24} />
-                    <span className="text-xl font-black uppercase italic">Campaign</span>
+                    <Trophy className="text-yellow-500" size={24} />
+                    <span className="text-2xl font-black uppercase italic tracking-tighter">Campaign_Mode</span>
                   </button>
                   <button 
                     onClick={() => setMode('EDITOR')}
-                    className="px-8 py-4 bg-white/10 hover:bg-white/20 border border-white/20 rounded-2xl flex items-center gap-3 transition-all"
+                    className="px-10 py-5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-[28px] flex items-center gap-4 transition-all"
                   >
-                    <Edit2 size={24} />
-                    <span className="text-xl font-black uppercase italic text-white/80">Editor</span>
+                    <Edit2 className="text-white/60" size={24} />
+                    <span className="text-2xl font-black uppercase italic tracking-tighter text-white/80">Editor</span>
                   </button>
                 </div>
 
-                <div className="pt-6 border-t border-white/10 space-y-4">
-                  <label className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em]">Play Shared Level</label>
-                  <div className="flex gap-2">
-                    <input 
-                      type="text"
-                      value={shareCode}
-                      onChange={(e) => setShareCode(e.target.value)}
-                      placeholder="Paste Level Code..."
-                      className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-white/30"
-                    />
-                    <button 
-                      onClick={handleLoadCode}
-                      className="px-6 py-3 bg-white text-black rounded-xl font-black uppercase text-xs hover:bg-white/90 transition-all"
-                    >
-                      Load
-                    </button>
-                  </div>
+                <div className="pt-8 border-t border-white/5 space-y-6">
+                   <div className="flex items-center gap-4">
+                      <div className="h-px flex-1 bg-white/5" />
+                      <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em]">Network Loading</span>
+                      <div className="h-px flex-1 bg-white/5" />
+                   </div>
+                   <div className="flex gap-3">
+                     <div className="relative flex-1 group">
+                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20">
+                           <Settings size={14} />
+                        </div>
+                        <input 
+                          type="text"
+                          value={shareCode}
+                          onChange={(e) => setShareCode(e.target.value)}
+                          placeholder="INPUT_LINK_CODE..."
+                          className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-xs font-black placeholder:text-white/10 focus:outline-none focus:border-white/30 transition-all group-hover:bg-white/10"
+                        />
+                     </div>
+                     <button 
+                       onClick={handleLoadCode}
+                       className="px-10 py-4 bg-white text-black rounded-2xl font-black uppercase text-xs hover:bg-white/90 transition-all flex items-center gap-2"
+                     >
+                       <RefreshCw size={14} />
+                       SYNC
+                     </button>
+                   </div>
                 </div>
               </div>
 
-              <div className="bg-white/5 rounded-[40px] p-8 border border-white/10 relative overflow-hidden group">
-                <div className="absolute top-0 right-0 p-8 opacity-10 rotate-12 group-hover:rotate-0 transition-transform duration-1000">
-                  <Wand2 size={200} />
-                </div>
-                <div className="relative space-y-6">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-blue-500/20 rounded-lg">
-                      <Wand2 className="text-blue-400" size={20} />
+              <div className="lg:col-span-5">
+                <div className="glass-panel tech-border rounded-[48px] p-8 space-y-8 h-full flex flex-col">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="p-3 bg-blue-600/20 rounded-2xl">
+                        <Wand2 className="text-blue-500" size={24} />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-black uppercase italic leading-none">AI Forge</h3>
+                        <p className="text-[9px] font-black text-blue-500 uppercase tracking-widest mt-1">Prompted Construction</p>
+                      </div>
                     </div>
-                    <h3 className="text-xl font-bold uppercase italic">AI Level Generator</h3>
+                    <div className="text-[9px] font-black text-white/20 uppercase tracking-widest bg-white/5 px-3 py-1 rounded-full">
+                       GMNI_MODEL_R3
+                    </div>
                   </div>
-                  <textarea 
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                    placeholder="Describe your dream level... (e.g. 'a difficult lava land with spikes and coins')"
-                    className="w-full h-40 bg-black/40 border border-white/10 rounded-2xl p-4 text-sm focus:outline-none focus:border-blue-500/50 transition-all resize-none placeholder:text-white/20"
-                  />
+
+                  <div className="flex-1 space-y-4">
+                     <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] block">Design Specification</label>
+                     <textarea 
+                        value={prompt}
+                        onChange={(e) => setPrompt(e.target.value)}
+                        placeholder="DEFINE ARCHITECTURE... e.g. 'A deep sea cavern with golden pipes and spikes'"
+                        className="w-full h-64 bg-black/40 border border-white/10 rounded-[32px] p-6 text-sm font-medium focus:outline-none focus:border-blue-500/50 transition-all resize-none placeholder:text-white/10 leading-relaxed"
+                      />
+                  </div>
+
                   <button 
                     onClick={handleGenerateLevel}
                     disabled={isGenerating}
-                    className="w-full py-4 bg-blue-600 hover:bg-blue-500 disabled:bg-white/10 disabled:cursor-not-allowed rounded-2xl flex items-center justify-center gap-3 font-black uppercase italic transition-all"
+                    className="w-full py-5 bg-blue-600 hover:bg-blue-500 disabled:bg-white/5 disabled:text-white/20 disabled:cursor-not-allowed rounded-3xl flex items-center justify-center gap-4 font-black uppercase italic transition-all shadow-[0_20px_40px_rgba(37,99,235,0.2)]"
                   >
                     {isGenerating ? (
-                      <RefreshCw className="animate-spin" size={20} />
+                      <RefreshCw className="animate-spin" size={24} />
                     ) : (
-                      <Wand2 size={20} />
+                      <>
+                        <Wand2 size={24} />
+                        Generate_Reality
+                      </>
                     )}
-                    {isGenerating ? 'Generating...' : 'Construct with Gemini'}
                   </button>
+
+                  <div className="pt-6 border-t border-white/5 space-y-3">
+                     <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-widest text-white/20">
+                        <span>System Latency</span>
+                        <span>&lt; 400ms</span>
+                     </div>
+                     <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+                        <motion.div 
+                          animate={{ width: isGenerating ? ['0%', '70%', '95%'] : '100%' }}
+                          transition={{ duration: isGenerating ? 10 : 0.5 }}
+                          className={`h-full ${isGenerating ? 'bg-blue-500' : 'bg-green-500/30'}`} 
+                        />
+                     </div>
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -368,7 +426,7 @@ export default function App() {
                 </div>
               </div>
               
-              <GameCanvas 
+               <GameCanvas 
                 levelData={levelData}
                 character={character}
                 controls={controls}
@@ -377,42 +435,65 @@ export default function App() {
                 onGameOver={() => setMode('GAME_OVER')}
               />
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                 <div className="p-4 bg-white/5 rounded-2xl border border-white/10 space-y-3">
-                    <div className="flex justify-between text-[8px] font-bold text-white/40 uppercase tracking-widest">
-                       <span>Ability</span>
-                       <span>Ready</span>
+              {/* Control Hints Overlay */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                 <div className="p-5 bg-white/5 rounded-3xl border border-white/5 tech-border space-y-4">
+                    <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-[0.2em] text-white/30">
+                       <span>SYS_LOG: Ability_Link</span>
+                       <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                     </div>
                     <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
-                       <div 
-                        className="h-full bg-green-500 transition-all duration-300" 
-                        style={{ width: `${gameState.player ? (1 - (gameState.player as any).abilityCooldown / CHARACTERS[character].abilityCooldown) * 100 : 100}%` }} 
+                       <motion.div 
+                        initial={false}
+                        animate={{ width: `${gameState.player ? (1 - (gameState.player as any).abilityCooldown / CHARACTERS[character].abilityCooldown) * 100 : 100}%` }}
+                        className="h-full bg-gradient-to-r from-blue-600 to-blue-400 transition-all duration-300" 
                        />
                     </div>
-                    <p className="text-xs font-black italic uppercase">{CHARACTERS[character].abilityName}</p>
-                 </div>
-                 <div className="p-4 bg-white/5 rounded-2xl border border-white/10 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                       <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-white/5 border border-white/10">
-                          <User size={20} className="text-white/60" />
-                       </div>
-                       <div>
-                          <p className="text-[8px] font-black uppercase text-white/30 tracking-widest">Hero</p>
-                          <p className="text-sm font-black italic uppercase">{CHARACTERS[character].name}</p>
-                       </div>
-                    </div>
-                    <div className="text-right">
-                       <p className="text-[8px] font-black uppercase text-white/30 tracking-widest">Speed</p>
-                       <p className="text-sm font-black italic uppercase text-blue-400">{CHARACTERS[character].speed}x</p>
+                    <div>
+                       <p className="text-xs font-black italic uppercase tracking-tight text-white/90">{CHARACTERS[character].abilityName}</p>
+                       <p className="text-[9px] font-bold text-blue-500 uppercase tracking-widest mt-1">Press [X] to trigger</p>
                     </div>
                  </div>
-                 <div className="p-4 bg-white/5 rounded-2xl border border-white/10 flex justify-center gap-6">
-                    <button onClick={() => setMode('MENU')} className="text-white/40 hover:text-white transition-colors">
-                      <AlertCircle size={24} />
-                    </button>
-                    <button onClick={() => setMode('EDITOR')} className="text-white/40 hover:text-white transition-colors">
-                      <Hammer size={24} />
-                    </button>
+                 
+                 <div className="md:col-span-2 glass-panel rounded-3xl p-5 border border-white/5 flex items-center justify-between">
+                    <div className="flex items-center gap-5">
+                       <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-white/5 border border-white/10 group overflow-hidden relative">
+                          <User size={28} className="text-white/40 group-hover:scale-110 transition-transform" />
+                          <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent" />
+                       </div>
+                       <div className="space-y-1">
+                          <p className="text-[10px] font-black uppercase text-white/20 tracking-[0.3em]">Operational_Hero</p>
+                          <h4 className="text-xl font-black italic uppercase tracking-tighter">{CHARACTERS[character].name}</h4>
+                          <div className="flex gap-2">
+                             {(CHARACTERS[character].description || "Base Unit").split(' ').map((word, i) => (
+                               <span key={i} className="text-[8px] px-2 py-0.5 bg-white/5 rounded text-white/40 font-bold uppercase">{word}</span>
+                             ))}
+                          </div>
+                       </div>
+                    </div>
+                    <div className="flex items-end flex-col gap-1">
+                       <span className="text-[9px] font-black text-white/20 uppercase tracking-widest">Movement_Pwr</span>
+                       <div className="flex gap-1">
+                          {[1,2,3,4,5].map(i => (
+                             <div key={i} className={`w-1.5 h-4 rounded-sm ${i <= CHARACTERS[character].speed ? 'bg-blue-500' : 'bg-white/5'}`} />
+                          ))}
+                       </div>
+                    </div>
+                 </div>
+
+                 <div className="p-5 tech-border rounded-3xl flex items-center justify-center gap-8">
+                    <div className="flex flex-col items-center gap-2">
+                       <div className="p-3 bg-white/5 rounded-xl border border-white/10">
+                          <Play size={20} className="text-white/40" />
+                       </div>
+                       <span className="text-[8px] font-black uppercase text-white/20 tracking-widest">Run: WASD</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-2">
+                       <div className="p-3 bg-white/5 rounded-xl border border-white/10">
+                          <Star size={20} className="text-white/40" />
+                       </div>
+                       <span className="text-[8px] font-black uppercase text-white/20 tracking-widest">Jump: Space</span>
+                    </div>
                  </div>
               </div>
             </motion.div>
@@ -590,49 +671,55 @@ const Editor: React.FC<EditorProps> = ({ initialLevel, onSave, onShare }) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-           <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
+      <div className="flex flex-wrap items-center justify-between gap-4 glass-panel p-4 rounded-3xl tech-border">
+        <div className="flex items-center gap-6">
+           <div className="flex bg-white/5 p-1 rounded-2xl border border-white/10 divide-x divide-white/5">
               <button 
                 onClick={() => setTool('TILE')}
-                className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase transition-all ${tool === 'TILE' ? 'bg-white text-black' : 'text-white/40 hover:text-white'}`}
+                className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${tool === 'TILE' ? 'bg-white text-black shadow-lg shadow-white/50' : 'text-white/40 hover:text-white'}`}
               >
-                Tiles
+                <Hammer size={12} />
+                TILES [TAB]
               </button>
               <button 
                 onClick={() => setTool('ENTITY')}
-                className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase transition-all ${tool === 'ENTITY' ? 'bg-white text-black' : 'text-white/40 hover:text-white'}`}
+                className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${tool === 'ENTITY' ? 'bg-white text-black shadow-lg shadow-white/50' : 'text-white/40 hover:text-white'}`}
               >
-                Entities
+                <User size={12} />
+                ENTITIES [TAB]
               </button>
            </div>
 
-           <div className="flex gap-2 overflow-x-auto pb-1 max-w-md">
+           <div className="flex gap-2 overflow-x-auto pb-1 max-w-[300px] no-scrollbar">
              {tool === 'TILE' ? (
-               TILE_LIST.map(t => (
+               TILE_LIST.map((t, i) => (
                  <button
                     key={t}
                     onClick={() => setSelectedTile(t)}
-                    className={`shrink-0 w-10 h-10 rounded-lg border-2 transition-all ${selectedTile === t ? 'border-blue-500 bg-blue-500/20' : 'border-transparent bg-white/5'}`}
+                    title={`${t} [${i + 1}]`}
+                    className={`shrink-0 w-12 h-12 rounded-2xl border-2 transition-all relative ${selectedTile === t ? 'border-white bg-white/10' : 'border-transparent bg-white/5 hover:border-white/20'}`}
                  >
-                    <div className="w-full h-full rounded sm" style={{ backgroundColor: (COLORS as any)[t] || '#444' }} />
+                    <div className="w-full h-full rounded-xl scale-[0.6]" style={{ backgroundColor: (COLORS as any)[t] || '#444' }} />
+                    <span className="absolute bottom-1 right-1 text-[8px] font-black opacity-30">{i+1}</span>
                  </button>
                ))
              ) : (
-               ENTITY_LIST.map(e => (
+               ENTITY_LIST.map((e, i) => (
                 <button
                    key={e}
                    onClick={() => setSelectedEntity(e)}
-                   className={`shrink-0 w-10 h-10 rounded-lg border-2 transition-all ${selectedEntity === e ? 'border-yellow-500 bg-yellow-500/20' : 'border-transparent bg-white/5'} flex items-center justify-center font-black text-[8px]`}
+                   title={`${e} [${i + 1}]`}
+                   className={`shrink-0 w-12 h-12 rounded-2xl border-2 transition-all relative flex items-center justify-center font-black ${selectedEntity === e ? 'border-white bg-white/10' : 'border-transparent bg-white/5 hover:border-white/20'}`}
                 >
-                   {e[0]}
+                   <span className="text-xl opacity-80">{e[0]}</span>
+                   <span className="absolute bottom-1 right-1 text-[8px] font-black opacity-30">{i+1}</span>
                 </button>
               ))
              )}
            </div>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-3">
            <button 
             onClick={() => {
               const code = serializeLevel(level);
@@ -641,16 +728,17 @@ const Editor: React.FC<EditorProps> = ({ initialLevel, onSave, onShare }) => {
               setCopied(true);
               setTimeout(() => setCopied(false), 2000);
             }}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-500 rounded-xl font-black uppercase italic transition-all flex items-center gap-2"
+            className="px-8 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl font-black uppercase italic text-xs tracking-tighter transition-all flex items-center gap-2"
           >
-            {copied ? 'Copied!' : 'Share Level'}
+            {copied ? <Check size={16} /> : <Wand2 size={16} />}
+            {copied ? 'SYS_LINK_CREATED' : 'GEN_SHARE_ID'}
           </button>
           <button 
             onClick={() => onSave(level)}
-            className="px-6 py-3 bg-green-600 hover:bg-green-500 rounded-xl font-black uppercase italic transition-all flex items-center gap-2"
+            className="px-8 py-3 bg-red-600 hover:bg-red-500 rounded-2xl font-black uppercase italic text-xs tracking-tighter transition-all flex items-center gap-2 shadow-[0_10px_20px_rgba(220,38,38,0.2)]"
           >
-            <Hammer size={18} />
-            Save Level
+            <Hammer size={16} />
+            DEPLOY_DATA
           </button>
         </div>
       </div>
