@@ -4,7 +4,8 @@ A retro-inspired platformer and level editor enriched with AI level generation. 
 
 ## 🌟 Features
 
-- **AI Level Generation**: Powered by Gemini 1.5 Flash. Generate infinite, customized levels using natural language prompts.
+- **AI Level Generation**: Powered by the latest Gemini generative models. Generate infinite, customized levels using natural language prompts.
+- **Modern Technical Dashboard**: A cinematic "Mission Control" UI featuring scanlines, glassmorphism, and animated tech-borders.
 - **Multiple Characters**: Play as Mario, Luigi, Toad, or Peach, each with unique stats and special abilities.
   - **Mario**: Fire Cyclone (Spin attack)
   - **Luigi**: Ghost Dash (Phase through walls/enemies)

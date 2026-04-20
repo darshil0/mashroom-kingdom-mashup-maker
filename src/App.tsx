@@ -150,7 +150,7 @@ export default function App() {
           </div>
           <div>
             <h1 className="text-xl font-black tracking-tighter uppercase italic leading-none">Kingdom Maker</h1>
-            <p className="text-[9px] text-white/40 font-black uppercase tracking-[0.3em] mt-1">Mashup Engine v1.6.0 // SYS_READY</p>
+            <p className="text-[9px] text-white/40 font-black uppercase tracking-[0.3em] mt-1">Mashup Engine v1.7.0 // SYS_READY</p>
           </div>
         </div>
 
@@ -218,7 +218,7 @@ export default function App() {
                  <div className="w-full space-y-2">
                     <div className="flex justify-between items-end px-2">
                        <span className="text-[8px] font-black text-white/20 uppercase tracking-widest">Construction Progress</span>
-                       <span className="text-[8px] font-black text-blue-500 uppercase tracking-widest">v1.6.0 Stable</span>
+                       <span className="text-[8px] font-black text-blue-500 uppercase tracking-widest">v1.7.0 Stable</span>
                     </div>
                     <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden p-0.5 border border-white/5">
                        <motion.div 
@@ -246,7 +246,7 @@ export default function App() {
               <div className="lg:col-span-7 space-y-12">
                 <div id="main-hero-text" className="space-y-6">
                    <div className="inline-flex px-3 py-1 bg-red-600/10 border border-red-500/20 rounded-full">
-                      <span className="text-[9px] font-black text-red-500 uppercase tracking-widest">v1.6.0 Stable // Auth: Level 4</span>
+                      <span className="text-[9px] font-black text-red-500 uppercase tracking-widest">v1.7.0 Stable // Auth: Level 4</span>
                    </div>
                   <h2 className="text-8xl font-black italic tracking-tighter leading-[0.85] uppercase">
                     Build. <br />
@@ -688,7 +688,7 @@ export default function App() {
             </div>
             <div className="flex items-center gap-2">
                <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-               <span className="text-[7px] font-black uppercase tracking-widest leading-none mt-0.5 whitespace-nowrap">Engine_Stable // v1.6.0.42_R3</span>
+               <span className="text-[7px] font-black uppercase tracking-widest leading-none mt-0.5 whitespace-nowrap">Engine_Stable // v1.7.0.42_R3</span>
             </div>
          </div>
          <div className="h-0.5 w-full bg-red-600 mt-2 shadow-[0_0_15px_rgba(220,38,38,0.5)]" />

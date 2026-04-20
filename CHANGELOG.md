@@ -2,6 +2,20 @@
 
 All notable changes to the **Mushroom Kingdom Mashup Maker** will be documented in this file.
 
+### [1.7.0] - 2026-04-20
+
+#### Added
+- **Modern UI Overhaul**: Implemented a "Modern Technical Dashboard" aesthetic across all game screens.
+- **Enhanced Mission Success/Failure**: Redesigned End screens with high-intensity scanlines, tech-borders, and cinematic statistics display.
+- **Orbital AI Generation Terminal**: New loading screen for Gemini level construction with animated orbital scanners and progress logs.
+- **Engine Footer**: Added a real-time status footer with control hints and system stability indicators.
+- **DOM Modernization**: Injected unique IDs across all UI components for better organization and reliability.
+- **Version Calibration**: Synchronized all internal engine version strings to v1.7.0.
+
+#### Fixed
+- **Background Grid CSS**: Resolved a rendering issue in the background grid by correcting CSS property names.
+- **UI Consistency**: Standardized typography and borders to a military-grade "Mission Control" theme.
+
 ## [1.6.0] - 2026-04-20
 
 ### Fixed & Improved
