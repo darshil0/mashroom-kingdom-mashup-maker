@@ -2,6 +2,15 @@
 
 All notable changes to the **Mushroom Kingdom Mashup Maker** will be documented in this file.
 
+## [1.6.0] - 2026-04-20
+
+### Fixed & Improved
+- **Win Condition Reliability**: Updated physics engine to correctly trigger a "Win" state when touching Goal tiles from any angle (sides or top).
+- **Event Synchronization**: Added a `isFinished` state guard to block duplicate "Win" or "Game Over" events within the same frame.
+- **Character Selection Polish**: Enhanced the hero selection menu with active badges and character-specific selection text.
+- **Physics Stability**: Refined horizontal collision resolution to prevent tile jittering during high-speed movement.
+- **Linter Cleanup**: Resolved all remaining static analysis warnings and missing icon imports.
+
 ## [1.5.0] - 2026-04-20
 
 ### Added
