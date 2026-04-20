@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control Schema // Mushroom Kingdom Mashup Maker</title>
+    <style>
+        body { background: #050505; color: #fff; font-family: 'JetBrains Mono', monospace; padding: 2rem; display: flex; flex-direction: column; align-items: center; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; width: 100%; max-width: 1000px; }
+        .card { background: #111; border: 1px solid #333; padding: 2rem; border-radius: 16px; border-top: 4px solid #f43f5e; }
+        h1 { font-style: italic; font-weight: 900; font-size: 3rem; text-transform: uppercase; margin-bottom: 3rem; }
+        h2 { border-bottom: 1px solid #333; padding-bottom: 0.5rem; margin-bottom: 1.5rem; color: #f43f5e; }
+        .key { background: #222; border: 1px solid #444; padding: 0.2rem 0.6rem; border-radius: 4px; color: #f43f5e; margin-right: 0.5rem; }
+        .action { color: #888; }
+        .row { margin-bottom: 1rem; display: flex; align-items: center; }
+    </style>
+</head>
+<body>
+    <h1>Protocol Overlays</h1>
+
+    <div class="grid">
+        <div class="card">
+            <h2>Movement Logic</h2>
+            <div class="row"><span class="key">W</span> <span class="action">Jump / Navigate Up</span></div>
+            <div class="row"><span class="key">A</span> <span class="action">Move West / Left</span></div>
+            <div class="row"><span class="key">S</span> <span class="action">Crouch / Navigate Down</span></div>
+            <div class="row"><span class="key">D</span> <span class="action">Move East / Right</span></div>
+        </div>
+
+        <div class="card">
+            <h2>Combat Protocols</h2>
+            <div class="row"><span class="key">SHIFT</span> <span class="action">High-Intensity Sprint</span></div>
+            <div class="row"><span class="key">SPACE</span> <span class="action">Execute Ability</span></div>
+            <div class="row"><span class="key">P</span> <span class="action">Pause Reality Stream</span></div>
+        </div>
+
+        <div class="card">
+            <h2>Editor Subsystems</h2>
+            <div class="row"><span class="key">1-9</span> <span class="action">Select Material / Tile</span></div>
+            <div class="row"><span class="key">CLICK</span> <span class="action">Deploy Material</span></div>
+            <div class="row"><span class="key">R-CLICK</span> <span class="action">Deconstruct / Erase</span></div>
+        </div>
+
+        <div class="card">
+            <h2>System Commands</h2>
+            <div class="row"><span class="key">ESC</span> <span class="action">Exit Terminal</span></div>
+            <div class="row"><span class="key">ENTER</span> <span class="action">Confirm Sequence</span></div>
+        </div>
+    </div>
+
+    <footer style="margin-top: 4rem; opacity: 0.3; font-size: 0.7rem;">
+        LOG_REF: CTRL_V1.7_STABLE
+    </footer>
+</body>
+</html>
