@@ -13,7 +13,7 @@ import { serializeLevel, deserializeLevel } from './utils/levelSerialization';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Play, Edit2, Wand2, RefreshCw, Trophy, 
-  AlertCircle, Star, Coins, User, Hammer, Settings
+  AlertCircle, Star, Coins, User, Hammer, Settings, Check
 } from 'lucide-react';
 
 const DEFAULT_LEVEL: LevelData = {
@@ -207,13 +207,16 @@ export default function App() {
                 </div>
 
                 <div className="space-y-4">
-                  <label className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em]">Select Character</label>
+                  <div className="flex justify-between items-end">
+                    <label className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em]">Select Character</label>
+                    <span className="text-[10px] font-black text-red-500 uppercase tracking-widest">{CHARACTERS[character].name} Selected</span>
+                  </div>
                   <div className="grid grid-cols-4 gap-3">
                     {(Object.keys(CHARACTERS) as CharacterType[]).map((char) => (
                       <button
                         key={char}
                         onClick={() => setCharacter(char)}
-                        className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${
+                        className={`relative p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${
                           character === char 
                           ? 'bg-white/10 border-white shadow-[0_0_20px_rgba(255,255,255,0.1)]' 
                           : 'bg-white/5 border-transparent hover:bg-white/10'
@@ -221,6 +224,11 @@ export default function App() {
                       >
                         <div className="w-12 h-12 rounded-lg" style={{ backgroundColor: CHARACTERS[char].color }} />
                         <span className="text-[10px] font-bold uppercase">{CHARACTERS[char].name}</span>
+                        {character === char && (
+                          <div className="absolute -top-1 -right-1 w-4 h-4 bg-white rounded-full flex items-center justify-center shadow-lg">
+                            <Check size={10} className="text-black font-bold" />
+                          </div>
+                        )}
                       </button>
                     ))}
                   </div>

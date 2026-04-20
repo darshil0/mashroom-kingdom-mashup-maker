@@ -58,6 +58,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     entities: [] as Entity[],
     tiles: [] as TileType[][],
     levelData,
+    isFinished: false,
   });
 
   useEffect(() => {
@@ -109,24 +110,38 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     player.pos.x += player.vel.x;
     let collision = checkTileCollision(player.pos, player.width, player.height, tiles);
     if (collision.collision) {
-      if (player.vel.x > 0) player.pos.x = collision.x! * TILE_SIZE - player.width;
-      else player.pos.x = (collision.x! + 1) * TILE_SIZE;
-      player.vel.x = 0;
+      if (collision.type && collision.type.startsWith('GOAL')) {
+        if (!stateRef.current.isFinished) {
+          stateRef.current.isFinished = true;
+          onWin();
+        }
+      } else {
+        if (player.vel.x > 0) player.pos.x = collision.x! * TILE_SIZE - player.width;
+        else if (player.vel.x < 0) player.pos.x = (collision.x! + 1) * TILE_SIZE;
+        player.vel.x = 0;
+      }
     }
 
     // Move Y
     player.pos.y += player.vel.y;
     collision = checkTileCollision(player.pos, player.width, player.height, tiles);
     if (collision.collision) {
-      if (player.vel.y > 0) {
-        player.pos.y = collision.y! * TILE_SIZE - player.height;
-        player.isGrounded = true;
-        player.vel.y = 0;
+      if (collision.type && collision.type.startsWith('GOAL')) {
+        if (!stateRef.current.isFinished) {
+          stateRef.current.isFinished = true;
+          onWin();
+        }
       } else {
-        player.pos.y = (collision.y! + 1) * TILE_SIZE;
-        player.vel.y = 0;
-        // Hit block from below
-        handleBlockHit(collision.x!, collision.y!);
+        if (player.vel.y > 0) {
+          player.pos.y = collision.y! * TILE_SIZE - player.height;
+          player.isGrounded = true;
+          player.vel.y = 0;
+        } else if (player.vel.y < 0) {
+          player.pos.y = (collision.y! + 1) * TILE_SIZE;
+          player.vel.y = 0;
+          // Hit block from below
+          handleBlockHit(collision.x!, collision.y!);
+        }
       }
     } else {
       player.isGrounded = false;
@@ -143,7 +158,10 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     // Out of bounds
     if (player.pos.y > tiles.length * TILE_SIZE) {
       player.isDead = true;
-      onGameOver();
+      if (!stateRef.current.isFinished) {
+        stateRef.current.isFinished = true;
+        onGameOver();
+      }
     }
 
     // --- Entities Physics ---
@@ -244,7 +262,10 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         direction: 1,
       });
     } else if (tile === 'GOAL_TOP' || tile === 'GOAL_BODY') {
-       onWin();
+       if (!stateRef.current.isFinished) {
+         stateRef.current.isFinished = true;
+         onWin();
+       }
     }
   };
 
@@ -265,7 +286,10 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
           player.invincibilityTime = 60;
         } else {
           player.isDead = true;
-          onGameOver();
+          if (!stateRef.current.isFinished) {
+            stateRef.current.isFinished = true;
+            onGameOver();
+          }
         }
       }
     } else if (entity.type === 'MUSHROOM') {
