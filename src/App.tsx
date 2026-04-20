@@ -8,6 +8,11 @@ import { GameMode, CharacterType, LevelData, TileType, EntityType } from './type
 import { CHARACTERS, TILE_SIZE, COLORS } from './constants';
 import { useControls } from './hooks/useControls';
 import { GameCanvas } from './components/GameCanvas';
+import { Header } from './components/Header';
+import { Footer } from './components/Footer';
+import { LoadingOverlay } from './components/LoadingOverlay';
+import { AbilityOverlay } from './components/AbilityOverlay';
+import { EditorToolbar } from './components/EditorToolbar';
 import { generateLevel } from './services/geminiService';
 import { serializeLevel, deserializeLevel } from './utils/levelSerialization';
 import { motion, AnimatePresence } from 'motion/react';
@@ -38,7 +43,7 @@ export default function App() {
   const [mode, setMode] = useState<GameMode>('MENU');
   const [character, setCharacter] = useState<CharacterType>('MARIO');
   const [levelData, setLevelData] = useState<LevelData>(DEFAULT_LEVEL);
-  const [gameState, setGameState] = useState({ score: 0, coins: 0, player: null });
+  const [gameState, setGameState] = useState({ score: 0, coins: 0, player: null as any });
   const [isGenerating, setIsGenerating] = useState(false);
   const [prompt, setPrompt] = useState("");
   const [shareCode, setShareCode] = useState("");
@@ -134,98 +139,18 @@ export default function App() {
   return (
     <div className="min-h-screen text-white font-mono selection:bg-red-500 selection:text-white relative overflow-hidden">
       {/* Header handled by React components for dynamic state */}
-
-      {/* Header */}
-      <header id="main-header" className="p-4 border-b border-white/10 flex justify-between items-center bg-black/40 backdrop-blur-xl sticky top-0 z-50">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center shadow-[0_0_20px_rgba(220,38,38,0.3)]">
-            <Star className="text-white fill-white" size={24} />
-          </div>
-          <div>
-            <h1 className="text-xl font-black tracking-tighter uppercase italic leading-none">Kingdom Maker</h1>
-            <p className="text-[9px] text-white/40 font-black uppercase tracking-[0.3em] mt-1">Mashup Engine v1.7.0 // SYS_READY</p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          {mode !== 'MENU' && (
-             <button 
-              id="btn-terminal-exit"
-              onClick={() => setMode('MENU')}
-              className="px-5 py-2 bg-white/5 hover:bg-white/10 rounded-full text-[10px] font-black tracking-widest transition-all border border-white/10 flex items-center gap-2 group"
-             >
-               <Settings size={12} className="group-hover:rotate-180 transition-transform duration-500" />
-               TERMINAL_EXIT
-             </button>
-          )}
-          <div id="stats-display" className="flex bg-white/5 rounded-full p-1 border border-white/10 divide-x divide-white/10 overflow-hidden shadow-inner">
-            <div className="px-5 py-2 flex items-center gap-2 hover:bg-white/5 transition-colors cursor-default group">
-              <Coins size={14} className="text-yellow-400 group-hover:scale-125 transition-transform" />
-              <div className="flex flex-col">
-                <span className="text-[7px] font-black text-white/20 uppercase tracking-widest leading-none">Resources</span>
-                <span className="text-xs font-black text-yellow-400 font-mono tracking-tighter">{gameState.coins.toString().padStart(3, '0')}</span>
-              </div>
-            </div>
-            <div className="px-5 py-2 flex items-center gap-2 hover:bg-white/5 transition-colors cursor-default group">
-              <Star size={14} className="text-blue-400 group-hover:rotate-45 transition-transform" />
-              <div className="flex flex-col">
-                <span className="text-[7px] font-black text-white/20 uppercase tracking-widest leading-none">Score_Link</span>
-                <span className="text-xs font-black text-blue-400 font-mono tracking-tighter">{gameState.score.toString().padStart(6, '0')}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Header 
+        mode={mode} 
+        coins={gameState.coins} 
+        score={gameState.score} 
+        onExit={() => setMode('MENU')} 
+      />
 
       <main id="app-main-content" className="max-w-7xl mx-auto p-6 space-y-8 relative">
-        <AnimatePresence>
-          {isGenerating && (
-            <motion.div 
-              id="ai-loading-overlay"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[200] bg-black/90 backdrop-blur-xl flex items-center justify-center p-8 overflow-hidden"
-            >
-              <div className="scanline" />
-              <div className="relative glass-panel tech-border rounded-[64px] p-16 flex flex-col items-center gap-10 max-w-lg w-full text-center">
-                 <div className="relative">
-                    <motion.div 
-                      animate={{ rotate: 360 }}
-                      transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
-                      className="w-32 h-32 border-4 border-blue-500/20 border-t-blue-500 rounded-full"
-                    />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                       <Wand2 className="text-blue-500 animate-pulse" size={48} />
-                    </div>
-                 </div>
-                 
-                 <div className="space-y-4">
-                    <h3 className="text-4xl font-black italic uppercase tracking-tighter">Forging_Reality</h3>
-                    <p className="text-[10px] font-black text-blue-500 uppercase tracking-[0.5em] leading-relaxed">
-                      AI Module GMNI_R3 Active<br />
-                      Mapping World {campaignProgress.currentLevel + 1} Physics...
-                    </p>
-                 </div>
-
-                 <div className="w-full space-y-2">
-                    <div className="flex justify-between items-end px-2">
-                       <span className="text-[8px] font-black text-white/20 uppercase tracking-widest">Construction Progress</span>
-                       <span className="text-[8px] font-black text-blue-500 uppercase tracking-widest">v1.7.0 Stable</span>
-                    </div>
-                    <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden p-0.5 border border-white/5">
-                       <motion.div 
-                        initial={{ width: '0%' }}
-                        animate={{ width: ['20%', '45%', '85%', '98%'] }}
-                        transition={{ duration: 15 }}
-                        className="h-full bg-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.6)]" 
-                       />
-                    </div>
-                 </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <LoadingOverlay 
+          isVisible={isGenerating} 
+          currentLevel={campaignProgress.currentLevel} 
+        />
 
         <AnimatePresence mode="wait">
           {mode === 'MENU' && (
@@ -669,42 +594,7 @@ export default function App() {
       </main>
 
       {/* Footer Decoration */}
-      <footer id="app-footer-decoration" className="fixed bottom-0 left-0 w-full z-40 bg-black/80 backdrop-blur-md border-t border-white/5 p-2 hidden sm:block">
-         <div className="max-w-7xl mx-auto flex justify-between items-center opacity-40">
-            <div className="flex gap-4 items-center">
-               <div className="flex gap-3 mr-4">
-                  {[
-                    { label: 'LORE', url: '/lore.html' },
-                    { label: 'SPECS', url: '/tech_specs.html' },
-                    { label: 'CTRLS', url: '/controls.html' },
-                    { label: 'LOGS', url: '/archive_v1.html' },
-                    { label: 'API', url: '/api_reference.html' }
-                  ].map(link => (
-                    <a 
-                      key={link.label} 
-                      href={link.url} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-[7px] font-black uppercase tracking-widest leading-none mt-0.5 hover:text-red-500 transition-colors"
-                    >
-                      {link.label}
-                    </a>
-                  ))}
-               </div>
-               <div className="flex gap-1">
-                  {['W','A','S','D'].map(k => (
-                    <span key={k} className="px-1.5 py-0.5 border border-white/20 rounded text-[7px] font-black">{k}</span>
-                  ))}
-               </div>
-               <span className="text-[7px] font-black uppercase tracking-widest leading-none mt-0.5">Control_Input_Ready</span>
-            </div>
-            <div className="flex items-center gap-2">
-               <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-               <span className="text-[7px] font-black uppercase tracking-widest leading-none mt-0.5 whitespace-nowrap">Engine_Stable // v1.7.0.42_R3</span>
-            </div>
-         </div>
-         <div className="h-0.5 w-full bg-red-600 mt-2 shadow-[0_0_15px_rgba(220,38,38,0.5)]" />
-      </footer>
+      <Footer />
     </div>
   );
 }
@@ -789,56 +679,14 @@ const Editor: React.FC<EditorProps> = ({ initialLevel, onSave, onShare }) => {
   return (
     <div className="space-y-6">
       <div id="editor-toolbar" className="flex flex-wrap items-center justify-between gap-4 glass-panel p-4 rounded-3xl tech-border shadow-2xl">
-        <div className="flex items-center gap-6">
-           <div id="editor-tool-toggle" className="flex bg-white/5 p-1 rounded-2xl border border-white/10 divide-x divide-white/5">
-              <button 
-                id="btn-editor-tool-tile"
-                onClick={() => setTool('TILE')}
-                className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${tool === 'TILE' ? 'bg-white text-black shadow-lg shadow-white/50' : 'text-white/40 hover:text-white'}`}
-              >
-                <Hammer size={12} />
-                TILES [TAB]
-              </button>
-              <button 
-                id="btn-editor-tool-entity"
-                onClick={() => setTool('ENTITY')}
-                className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${tool === 'ENTITY' ? 'bg-white text-black shadow-lg shadow-white/50' : 'text-white/40 hover:text-white'}`}
-              >
-                <User size={12} />
-                ENTITIES [TAB]
-              </button>
-           </div>
-
-           <div id="editor-palette" className="flex gap-2 overflow-x-auto pb-1 max-w-[300px] no-scrollbar">
-             {tool === 'TILE' ? (
-               TILE_LIST.map((t, i) => (
-                 <button
-                    id={`btn-palette-tile-${t}`}
-                    key={t}
-                    onClick={() => setSelectedTile(t)}
-                    title={`${t} [${i + 1}]`}
-                    className={`shrink-0 w-12 h-12 rounded-2xl border-2 transition-all relative ${selectedTile === t ? 'border-white bg-white/10' : 'border-transparent bg-white/5 hover:border-white/20'}`}
-                 >
-                    <div className="w-full h-full rounded-xl scale-[0.6]" style={{ backgroundColor: (COLORS as any)[t] || '#444' }} />
-                    <span className="absolute bottom-1 right-1 text-[8px] font-black opacity-30">{i+1}</span>
-                 </button>
-               ))
-             ) : (
-               ENTITY_LIST.map((e, i) => (
-                <button
-                   id={`btn-palette-entity-${e}`}
-                   key={e}
-                   onClick={() => setSelectedEntity(e)}
-                   title={`${e} [${i + 1}]`}
-                   className={`shrink-0 w-12 h-12 rounded-2xl border-2 transition-all relative flex items-center justify-center font-black ${selectedEntity === e ? 'border-white bg-white/10' : 'border-transparent bg-white/5 hover:border-white/20'}`}
-                >
-                   <span className="text-xl opacity-80">{e[0]}</span>
-                   <span className="absolute bottom-1 right-1 text-[8px] font-black opacity-30">{i+1}</span>
-                </button>
-              ))
-             )}
-           </div>
-        </div>
+        <EditorToolbar 
+          tool={tool}
+          selectedTile={selectedTile}
+          selectedEntity={selectedEntity}
+          onToolChange={setTool}
+          onTileSelect={setSelectedTile}
+          onEntitySelect={setSelectedEntity}
+        />
 
         <div id="editor-actions" className="flex gap-3">
            <button 

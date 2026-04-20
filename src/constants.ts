@@ -10,6 +10,7 @@ export const FRICTION = 0.85;
 export const CHARACTERS = {
   MARIO: {
     name: 'Mario',
+    description: 'The balanced hero. Agile and powerful.',
     speed: 4,
     jumpForce: 12,
     abilityName: 'Fire Cyclone',
@@ -18,6 +19,7 @@ export const CHARACTERS = {
   },
   LUIGI: {
     name: 'Luigi',
+    description: 'The master of height. Slippery but reaches high places.',
     speed: 3.5,
     jumpForce: 14.5,
     abilityName: 'Ghost Dash',
@@ -26,6 +28,7 @@ export const CHARACTERS = {
   },
   TOAD: {
     name: 'Toad',
+    description: 'The speedster. Low jump but unparalleled swiftness.',
     speed: 5.5,
     jumpForce: 10,
     abilityName: 'Super Sprout',
@@ -34,6 +37,7 @@ export const CHARACTERS = {
   },
   PEACH: {
     name: 'Peach',
+    description: 'The tactician. Floats gracefully and deploys shields.',
     speed: 3.8,
     jumpForce: 11,
     abilityName: 'Crystal Barrier',

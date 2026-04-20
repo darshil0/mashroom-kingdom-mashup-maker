@@ -9,25 +9,25 @@ app.use(express.json());
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
 
 const LEVEL_SCHEMA = {
-  type: Type.OBJECT,
+  type: 'object' as any,
   properties: {
-    width: { type: Type.NUMBER, description: "Width of the level in tiles" },
-    height: { type: Type.NUMBER, description: "Height of the level in tiles" },
+    width: { type: 'number' as any, description: "Width of the level in tiles" },
+    height: { type: 'number' as any, description: "Height of the level in tiles" },
     tiles: {
-      type: Type.ARRAY,
+      type: 'array' as any,
       items: {
-        type: Type.ARRAY,
-        items: { type: Type.STRING, description: "Tile type: EMPTY, GROUND, BRICK, QUESTION, PIPE_TOP_LEFT, etc." }
+        type: 'array' as any,
+        items: { type: 'string' as any, description: "Tile type: EMPTY, GROUND, BRICK, QUESTION, PIPE_TOP_LEFT, etc." }
       }
     },
     entities: {
-      type: Type.ARRAY,
+      type: 'array' as any,
       items: {
-        type: Type.OBJECT,
+        type: 'object' as any,
         properties: {
-          type: { type: Type.STRING, description: "Entity type: GOOMBA, COIN, MUSHROOM" },
-          x: { type: Type.NUMBER, description: "X coordinate in tiles" },
-          y: { type: Type.NUMBER, description: "Y coordinate in tiles" }
+          type: { type: 'string' as any, description: "Entity type: GOOMBA, COIN, MUSHROOM" },
+          x: { type: 'number' as any, description: "X coordinate in tiles" },
+          y: { type: 'number' as any, description: "Y coordinate in tiles" }
         }
       }
     }
