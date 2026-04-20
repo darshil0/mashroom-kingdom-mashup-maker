@@ -136,11 +136,14 @@ export default function App() {
       <div className="scanline" />
       
       {/* Background Grid */}
-      <div className="fixed inset-0 pointer-events-none opacity-[0.03]" 
-           style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', size: '20px 20px' }} />
+      <div id="app-bg-grid" className="fixed inset-0 pointer-events-none opacity-[0.03]" 
+           style={{ 
+             backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', 
+             backgroundSize: '32px 32px' 
+           }} />
 
       {/* Header */}
-      <header className="p-4 border-b border-white/10 flex justify-between items-center bg-black/40 backdrop-blur-xl sticky top-0 z-50">
+      <header id="main-header" className="p-4 border-b border-white/10 flex justify-between items-center bg-black/40 backdrop-blur-xl sticky top-0 z-50">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center shadow-[0_0_20px_rgba(220,38,38,0.3)]">
             <Star className="text-white fill-white" size={24} />
@@ -154,40 +157,77 @@ export default function App() {
         <div className="flex items-center gap-3">
           {mode !== 'MENU' && (
              <button 
+              id="btn-terminal-exit"
               onClick={() => setMode('MENU')}
-              className="px-5 py-2 bg-white/5 hover:bg-white/10 rounded-full text-[10px] font-black tracking-widest transition-all border border-white/10 flex items-center gap-2"
+              className="px-5 py-2 bg-white/5 hover:bg-white/10 rounded-full text-[10px] font-black tracking-widest transition-all border border-white/10 flex items-center gap-2 group"
              >
-               <Settings size={12} />
+               <Settings size={12} className="group-hover:rotate-180 transition-transform duration-500" />
                TERMINAL_EXIT
              </button>
           )}
-          <div className="flex bg-white/5 rounded-full p-1 border border-white/10 divide-x divide-white/10">
-            <div className="px-4 py-1.5 flex items-center gap-2">
-              <Coins size={14} className="text-yellow-400" />
-              <span className="text-xs font-black text-yellow-400 font-mono tracking-tighter">{gameState.coins.toString().padStart(3, '0')}</span>
+          <div id="stats-display" className="flex bg-white/5 rounded-full p-1 border border-white/10 divide-x divide-white/10 overflow-hidden shadow-inner">
+            <div className="px-5 py-2 flex items-center gap-2 hover:bg-white/5 transition-colors cursor-default group">
+              <Coins size={14} className="text-yellow-400 group-hover:scale-125 transition-transform" />
+              <div className="flex flex-col">
+                <span className="text-[7px] font-black text-white/20 uppercase tracking-widest leading-none">Resources</span>
+                <span className="text-xs font-black text-yellow-400 font-mono tracking-tighter">{gameState.coins.toString().padStart(3, '0')}</span>
+              </div>
             </div>
-            <div className="px-4 py-1.5 flex items-center gap-2">
-              <Star size={14} className="text-blue-400" />
-              <span className="text-xs font-black text-blue-400 font-mono tracking-tighter">{gameState.score.toString().padStart(6, '0')}</span>
+            <div className="px-5 py-2 flex items-center gap-2 hover:bg-white/5 transition-colors cursor-default group">
+              <Star size={14} className="text-blue-400 group-hover:rotate-45 transition-transform" />
+              <div className="flex flex-col">
+                <span className="text-[7px] font-black text-white/20 uppercase tracking-widest leading-none">Score_Link</span>
+                <span className="text-xs font-black text-blue-400 font-mono tracking-tighter">{gameState.score.toString().padStart(6, '0')}</span>
+              </div>
             </div>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto p-6 space-y-8 relative">
+      <main id="app-main-content" className="max-w-7xl mx-auto p-6 space-y-8 relative">
         <AnimatePresence>
           {isGenerating && (
             <motion.div 
+              id="ai-loading-overlay"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm flex items-center justify-center"
+              className="fixed inset-0 z-[200] bg-black/90 backdrop-blur-xl flex items-center justify-center p-8 overflow-hidden"
             >
-              <div className="bg-black/80 border border-white/20 p-8 rounded-[40px] flex flex-col items-center gap-4 shadow-2xl">
-                 <RefreshCw className="animate-spin text-blue-500" size={48} />
-                 <div className="text-center">
-                   <h3 className="text-xl font-black italic uppercase">Gemini is Constructing...</h3>
-                   <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest">Generating Level {campaignProgress.currentLevel + 1}</p>
+              <div className="scanline" />
+              <div className="relative glass-panel tech-border rounded-[64px] p-16 flex flex-col items-center gap-10 max-w-lg w-full text-center">
+                 <div className="relative">
+                    <motion.div 
+                      animate={{ rotate: 360 }}
+                      transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
+                      className="w-32 h-32 border-4 border-blue-500/20 border-t-blue-500 rounded-full"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                       <Wand2 className="text-blue-500 animate-pulse" size={48} />
+                    </div>
+                 </div>
+                 
+                 <div className="space-y-4">
+                    <h3 className="text-4xl font-black italic uppercase tracking-tighter">Forging_Reality</h3>
+                    <p className="text-[10px] font-black text-blue-500 uppercase tracking-[0.5em] leading-relaxed">
+                      AI Module GMNI_R3 Active<br />
+                      Mapping World {campaignProgress.currentLevel + 1} Physics...
+                    </p>
+                 </div>
+
+                 <div className="w-full space-y-2">
+                    <div className="flex justify-between items-end px-2">
+                       <span className="text-[8px] font-black text-white/20 uppercase tracking-widest">Construction Progress</span>
+                       <span className="text-[8px] font-black text-blue-500 uppercase tracking-widest">v1.6.0 Stable</span>
+                    </div>
+                    <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden p-0.5 border border-white/5">
+                       <motion.div 
+                        initial={{ width: '0%' }}
+                        animate={{ width: ['20%', '45%', '85%', '98%'] }}
+                        transition={{ duration: 15 }}
+                        className="h-full bg-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.6)]" 
+                       />
+                    </div>
                  </div>
               </div>
             </motion.div>
@@ -204,7 +244,7 @@ export default function App() {
               className="grid grid-cols-1 lg:grid-cols-12 gap-12 pt-6"
             >
               <div className="lg:col-span-7 space-y-12">
-                <div className="space-y-6">
+                <div id="main-hero-text" className="space-y-6">
                    <div className="inline-flex px-3 py-1 bg-red-600/10 border border-red-500/20 rounded-full">
                       <span className="text-[9px] font-black text-red-500 uppercase tracking-widest">v1.6.0 Stable // Auth: Level 4</span>
                    </div>
@@ -218,14 +258,15 @@ export default function App() {
                   </p>
                 </div>
 
-                <div className="space-y-6">
+                <div id="character-selector" className="space-y-6">
                    <div className="flex justify-between items-end border-b border-white/5 pb-2">
                      <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">Unit Identification</label>
                      <span className="text-[10px] font-black text-red-500 uppercase tracking-widest">Active: {CHARACTERS[character].name}</span>
                    </div>
                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                     {(Object.keys(CHARACTERS) as CharacterType[]).map((char) => (
+                     {(Object.keys(CHARACTERS) as CharacterType[]).map((char, i) => (
                        <button
+                         id={`btn-hero-${char}`}
                          key={char}
                          onClick={() => setCharacter(char)}
                          className={`relative overflow-hidden p-6 rounded-3xl border transition-all duration-300 flex flex-col items-start gap-4 group ${
@@ -242,7 +283,7 @@ export default function App() {
                          </div>
                          <div className="space-y-1 text-left">
                             <span className="block text-xs font-black uppercase tracking-tight">{CHARACTERS[char].name}</span>
-                            <span className="block text-[8px] font-bold text-white/30 uppercase tracking-widest">MK_UNIT_0{(Object.keys(CHARACTERS).indexOf(char) + 1)}</span>
+                            <span className="block text-[8px] font-bold text-white/30 uppercase tracking-widest">MK_UNIT_0{(i + 1)}</span>
                          </div>
                          
                          {character === char && (
@@ -256,8 +297,9 @@ export default function App() {
                    </div>
                 </div>
 
-                <div className="flex flex-wrap gap-4 pt-4">
+                <div id="main-actions" className="flex flex-wrap gap-4 pt-4">
                   <button 
+                    id="btn-play-quick"
                     onClick={handleStartGame}
                     className="group relative px-10 py-5 bg-red-600 hover:bg-red-500 rounded-[28px] flex items-center gap-4 transition-all transform active:scale-95 shadow-[0_20px_40px_rgba(220,38,38,0.2)]"
                   >
@@ -266,6 +308,7 @@ export default function App() {
                     <div className="absolute inset-0 bg-red-400/20 blur-xl rounded-[28px] group-hover:blur-2xl transition-all -z-10" />
                   </button>
                   <button 
+                    id="btn-play-campaign"
                     onClick={startCampaign}
                     className="px-10 py-5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-[28px] flex items-center gap-4 transition-all"
                   >
@@ -273,6 +316,7 @@ export default function App() {
                     <span className="text-2xl font-black uppercase italic tracking-tighter">Campaign_Mode</span>
                   </button>
                   <button 
+                    id="btn-open-editor"
                     onClick={() => setMode('EDITOR')}
                     className="px-10 py-5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-[28px] flex items-center gap-4 transition-all"
                   >
@@ -390,7 +434,7 @@ export default function App() {
                       <motion.div 
                         initial={{ width: 0 }}
                         animate={{ width: `${((campaignProgress.currentLevel + 1) / 10) * 100}%` }}
-                        className="h-full bg-gradient-to-r from-yellow-600 to-yellow-400 shadow-[0_0_10px_rgba(234,179,8,0.3)] transition-all duration-500"
+                        className="h-full bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)] transition-all duration-500"
                       />
                     </div>
                   </div>
@@ -524,70 +568,131 @@ export default function App() {
           {(mode === 'GAME_OVER' || mode === 'WIN') && (
             <motion.div 
               key="end"
-              initial={{ opacity: 0, scale: 1.1 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[100] flex items-center justify-center p-6 sm:p-12 overflow-hidden"
             >
-              <div className="absolute inset-0 bg-black/90 backdrop-blur-xl" />
-              <div className="relative text-center space-y-8 max-w-md w-full">
-                {mode === 'WIN' ? (
-                  <div className="space-y-4">
-                    <div className="w-24 h-24 bg-yellow-500 rounded-[32px] mx-auto flex items-center justify-center shadow-[0_0_50px_rgba(234,179,8,0.3)] rotate-12">
-                      <Trophy size={48} className="text-black" />
+              <div className="absolute inset-0 bg-[#050505]/95 backdrop-blur-3xl" />
+              <div className="scanline" />
+              
+              <motion.div 
+                initial={{ scale: 0.9, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                className="relative glass-panel tech-border rounded-[64px] p-12 max-w-2xl w-full space-y-12 text-center"
+              >
+                <div className="space-y-6">
+                  {mode === 'WIN' ? (
+                    <div className="space-y-8">
+                       <motion.div 
+                        animate={{ rotate: [12, -12, 12], scale: [1, 1.1, 1] }}
+                        transition={{ repeat: Infinity, duration: 4 }}
+                        className="w-32 h-32 bg-yellow-500 rounded-[40px] mx-auto flex items-center justify-center shadow-[0_30px_60px_rgba(234,179,8,0.4)] border-4 border-black"
+                      >
+                        <Trophy size={64} className="text-black" />
+                      </motion.div>
+                      <div className="space-y-2">
+                        <h2 className="text-8xl font-black italic uppercase tracking-tighter leading-none">MISSION_COMPLETE</h2>
+                        <p className="text-[10px] font-black text-yellow-500 uppercase tracking-[0.5em]">Sector Cleared // Authorization Verified</p>
+                      </div>
                     </div>
-                    <h2 className="text-6xl font-black italic uppercase tracking-tighter">Level Clear!</h2>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    <div className="w-24 h-24 bg-red-600 rounded-[32px] mx-auto flex items-center justify-center shadow-[0_0_50px_rgba(220,38,38,0.3)] -rotate-12">
-                      <AlertCircle size={48} className="text-white" />
-                    </div>
-                    <h2 className="text-6xl font-black italic uppercase tracking-tighter">Game Over</h2>
-                  </div>
-                )}
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 bg-white/10 rounded-2xl border border-white/10">
-                    <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest">Total Coins</p>
-                    <p className="text-2xl font-black">{gameState.coins}</p>
-                  </div>
-                  <div className="p-4 bg-white/10 rounded-2xl border border-white/10">
-                    <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest">Final Score</p>
-                    <p className="text-2xl font-black">{gameState.score}</p>
-                  </div>
-                  {campaignProgress.currentLevel > 0 && (
-                    <div className="col-span-2 p-4 bg-yellow-500/10 rounded-2xl border border-yellow-500/20">
-                       <p className="text-[10px] font-bold text-yellow-500/50 uppercase tracking-widest">Campaign Progress</p>
-                       <p className="text-xl font-black uppercase italic text-yellow-500">
-                         Reached World {Math.floor(campaignProgress.currentLevel / 4) + 1}-{(campaignProgress.currentLevel % 4) + 1}
-                       </p>
-                       <p className="text-[10px] font-bold text-white/20 mt-1 uppercase">Cumulative Score: {campaignProgress.totalScore.toLocaleString()}</p>
+                  ) : (
+                    <div className="space-y-8">
+                      <motion.div 
+                        animate={{ y: [-10, 10, -10] }}
+                        transition={{ repeat: Infinity, duration: 2 }}
+                        className="w-32 h-32 bg-red-600 rounded-[40px] mx-auto flex items-center justify-center shadow-[0_30px_60px_rgba(220,38,38,0.4)] border-4 border-black"
+                      >
+                        <AlertCircle size={64} className="text-white" />
+                      </motion.div>
+                      <div className="space-y-2">
+                        <h2 className="text-8xl font-black italic uppercase tracking-tighter leading-none">UNIT_TERMINATED</h2>
+                        <p className="text-[10px] font-black text-red-500 uppercase tracking-[0.5em]">Critical Failure // Connection Lost</p>
+                      </div>
                     </div>
                   )}
                 </div>
 
-                <div className="space-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="p-8 bg-white/5 rounded-[32px] border border-white/5 space-y-2 group hover:bg-white/10 transition-all">
+                    <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Resource_Secured</p>
+                    <div className="flex items-center justify-center gap-3">
+                       <Coins size={20} className="text-yellow-400" />
+                       <p className="text-4xl font-black italic tracking-tighter">{gameState.coins.toString().padStart(3, '0')}</p>
+                    </div>
+                  </div>
+                  <div className="p-8 bg-white/5 rounded-[32px] border border-white/5 space-y-2 group hover:bg-white/10 transition-all">
+                    <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Performance_Rating</p>
+                    <div className="flex items-center justify-center gap-3">
+                       <Star size={20} className="text-blue-400" />
+                       <p className="text-4xl font-black italic tracking-tighter">{gameState.score.toLocaleString()}</p>
+                    </div>
+                  </div>
+                  
+                  {campaignProgress.currentLevel > 0 && (
+                    <div className="md:col-span-2 p-8 bg-white/5 border border-white/10 rounded-[40px] flex flex-col items-center gap-4 group">
+                       <div className="w-full flex justify-between items-center px-4">
+                          <p className="text-[10px] font-black text-white/30 uppercase tracking-widest leading-none">Campaign_Log_0{(campaignProgress.currentLevel + 1)}</p>
+                          <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest bg-blue-500/10 px-4 py-1 rounded-full border border-blue-500/20">TOTAL: {campaignProgress.totalScore.toLocaleString()}</span>
+                       </div>
+                       <h4 className="text-4xl font-black italic uppercase tracking-tighter text-white/90">
+                         Reached_Sector {Math.floor(campaignProgress.currentLevel / 4) + 1}-{(campaignProgress.currentLevel % 4) + 1}
+                       </h4>
+                       <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                          <motion.div 
+                            initial={{ width: 0 }}
+                            animate={{ width: `${((campaignProgress.currentLevel + 1) / 10) * 100}%` }}
+                            className="h-full bg-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.5)]"
+                          />
+                       </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-4">
                   <button 
                     onClick={handleStartGame}
-                    className="w-full py-4 bg-white text-black rounded-2xl font-black uppercase italic transition-all hover:scale-[1.02] active:scale-95"
+                    className="flex-1 py-6 bg-white text-black rounded-3xl font-black uppercase italic tracking-widest text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-white/10 flex items-center justify-center gap-3"
                   >
-                    Try Again
+                    <RefreshCw size={18} />
+                    REBOOT_MISSION
                   </button>
                   <button 
                     onClick={() => setMode('MENU')}
-                    className="w-full py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-black uppercase italic transition-all"
+                    className="flex-1 py-6 bg-white/5 hover:bg-white/10 border border-white/5 rounded-3xl font-black uppercase italic tracking-widest text-sm transition-all flex items-center justify-center gap-3"
                   >
-                    Menu
+                    <Settings size={18} />
+                    RETURN_TO_BASE
                   </button>
                 </div>
-              </div>
+                
+                <div className="absolute top-12 left-12 opacity-5 pointer-events-none">
+                   <Star size={200} />
+                </div>
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
       </main>
 
       {/* Footer Decoration */}
-      <div className="fixed bottom-0 left-0 w-full h-1 bg-red-600 shadow-[0_0_20px_rgba(220,38,38,0.5)] z-40" />
+      <footer id="app-footer-decoration" className="fixed bottom-0 left-0 w-full z-40 bg-black/80 backdrop-blur-md border-t border-white/5 p-2 hidden sm:block">
+         <div className="max-w-7xl mx-auto flex justify-between items-center opacity-40">
+            <div className="flex gap-4 items-center">
+               <div className="flex gap-1">
+                  {['W','A','S','D'].map(k => (
+                    <span key={k} className="px-1.5 py-0.5 border border-white/20 rounded text-[7px] font-black">{k}</span>
+                  ))}
+               </div>
+               <span className="text-[7px] font-black uppercase tracking-widest leading-none mt-0.5">Control_Input_Ready</span>
+            </div>
+            <div className="flex items-center gap-2">
+               <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+               <span className="text-[7px] font-black uppercase tracking-widest leading-none mt-0.5 whitespace-nowrap">Engine_Stable // v1.6.0.42_R3</span>
+            </div>
+         </div>
+         <div className="h-0.5 w-full bg-red-600 mt-2 shadow-[0_0_15px_rgba(220,38,38,0.5)]" />
+      </footer>
     </div>
   );
 }
@@ -671,10 +776,11 @@ const Editor: React.FC<EditorProps> = ({ initialLevel, onSave, onShare }) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4 glass-panel p-4 rounded-3xl tech-border">
+      <div id="editor-toolbar" className="flex flex-wrap items-center justify-between gap-4 glass-panel p-4 rounded-3xl tech-border shadow-2xl">
         <div className="flex items-center gap-6">
-           <div className="flex bg-white/5 p-1 rounded-2xl border border-white/10 divide-x divide-white/5">
+           <div id="editor-tool-toggle" className="flex bg-white/5 p-1 rounded-2xl border border-white/10 divide-x divide-white/5">
               <button 
+                id="btn-editor-tool-tile"
                 onClick={() => setTool('TILE')}
                 className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${tool === 'TILE' ? 'bg-white text-black shadow-lg shadow-white/50' : 'text-white/40 hover:text-white'}`}
               >
@@ -682,6 +788,7 @@ const Editor: React.FC<EditorProps> = ({ initialLevel, onSave, onShare }) => {
                 TILES [TAB]
               </button>
               <button 
+                id="btn-editor-tool-entity"
                 onClick={() => setTool('ENTITY')}
                 className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${tool === 'ENTITY' ? 'bg-white text-black shadow-lg shadow-white/50' : 'text-white/40 hover:text-white'}`}
               >
@@ -690,10 +797,11 @@ const Editor: React.FC<EditorProps> = ({ initialLevel, onSave, onShare }) => {
               </button>
            </div>
 
-           <div className="flex gap-2 overflow-x-auto pb-1 max-w-[300px] no-scrollbar">
+           <div id="editor-palette" className="flex gap-2 overflow-x-auto pb-1 max-w-[300px] no-scrollbar">
              {tool === 'TILE' ? (
                TILE_LIST.map((t, i) => (
                  <button
+                    id={`btn-palette-tile-${t}`}
                     key={t}
                     onClick={() => setSelectedTile(t)}
                     title={`${t} [${i + 1}]`}
@@ -706,6 +814,7 @@ const Editor: React.FC<EditorProps> = ({ initialLevel, onSave, onShare }) => {
              ) : (
                ENTITY_LIST.map((e, i) => (
                 <button
+                   id={`btn-palette-entity-${e}`}
                    key={e}
                    onClick={() => setSelectedEntity(e)}
                    title={`${e} [${i + 1}]`}
@@ -719,8 +828,9 @@ const Editor: React.FC<EditorProps> = ({ initialLevel, onSave, onShare }) => {
            </div>
         </div>
 
-        <div className="flex gap-3">
+        <div id="editor-actions" className="flex gap-3">
            <button 
+            id="btn-editor-share"
             onClick={() => {
               const code = serializeLevel(level);
               setCurrentCode(code);
@@ -734,6 +844,7 @@ const Editor: React.FC<EditorProps> = ({ initialLevel, onSave, onShare }) => {
             {copied ? 'SYS_LINK_CREATED' : 'GEN_SHARE_ID'}
           </button>
           <button 
+            id="btn-editor-save"
             onClick={() => onSave(level)}
             className="px-8 py-3 bg-red-600 hover:bg-red-500 rounded-2xl font-black uppercase italic text-xs tracking-tighter transition-all flex items-center gap-2 shadow-[0_10px_20px_rgba(220,38,38,0.2)]"
           >
