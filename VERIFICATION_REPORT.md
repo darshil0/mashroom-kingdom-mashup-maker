@@ -1,7 +1,7 @@
 # ✅ Verification Report: Quality Metrics
 
 ## **Audit Summary**
-This report contains the results of the final quality audit for **Mushroom Kingdom Mashup Maker v1.7.1**.
+This report contains the results of the final quality audit for **Mushroom Kingdom Mashup Maker v1.7.5**.
 
 ### **1. Build Verification**
 | Type | Status | Result |
