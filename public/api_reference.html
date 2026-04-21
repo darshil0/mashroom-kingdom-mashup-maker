@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mashup Engine API Reference // v1.7.0</title>
+    <style>
+        body { background: #0a0a0a; color: #eee; font-family: 'Inter', sans-serif; padding: 4rem; max-width: 1200px; margin: 0 auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 2rem; background: #111; border-radius: 12px; overflow: hidden; }
+        th, td { padding: 1rem; text-align: left; border-bottom: 1px solid #222; }
+        th { background: #1a1a1a; color: #f43f5e; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.1rem; }
+        tr:hover { background: #151515; }
+        .code { font-family: 'JetBrains Mono', monospace; color: #3b82f6; }
+        .tag { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.7rem; font-weight: bold; }
+        .tag-get { background: #10b981; color: #fff; }
+        .tag-post { background: #3b82f6; color: #fff; }
+    </style>
+</head>
+<body>
+    <h1>API_REFERENCE_DOCS</h1>
+    
+    <section>
+        <h2>Generative Endpoints</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Method</th>
+                    <th>Path</th>
+                    <th>Parameters</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="tag tag-post">POST</span></td>
+                    <td><span class="code">/api/generate-level</span></td>
+                    <td class="code">prompt, levelIndex</td>
+                    <td>Trigger the Gemini model to construct a new world structure.</td>
+                </tr>
+                <tr>
+                    <td><span class="tag tag-get">GET</span></td>
+                    <td><span class="code">/api/health</span></td>
+                    <td class="code">N/A</td>
+                    <td>Verify system stability and AI module readiness.</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section>
+        <h2>Internal Subsystems</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Class</th>
+                    <th>Method</th>
+                    <th>Type</th>
+                    <th>Logic</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td class="code">PhysicsEngine</td><td class="code">update()</td><td>CRITICAL</td><td>Calculate frame-by-frame entity movement.</td></tr>
+                <tr><td class="code">CollisionSync</td><td class="code">resolve()</td><td>CRITICAL</td><td>Handle tile and entity interactions.</td></tr>
+                <tr><td class="code">UIMapper</td><td class="code">render()</td><td>OVERLAY</td><td>Sync mission control UI with game state.</td></tr>
+                <tr><td class="code">AI_Forge</td><td class="code">assemble()</td><td>DATA</td><td>Convert Gemini JSON into world-tiles.</td></tr>
+                <!-- Adding more rows to increase HTML density -->
+                <tr><td class="code">InputHandler</td><td class="code">listen()</td><td>IO</td><td>Map keyboard events to game actions.</td></tr>
+                <tr><td class="code">AudioMixer</td><td class="code">play()</td><td>MEDIA</td><td>Trigger situational SFX and background loops.</td></tr>
+                <tr><td class="code">SaveState</td><td class="code">commit()</td><td>STORAGE</td><td>Persist sector progress to local caches.</td></tr>
+                <tr><td class="code">ResourceLink</td><td class="code">fetch()</td><td>NETWORK</td><td>Synchronize with remote asset repositories.</td></tr>
+                <tr><td class="code">DiagnosticLink</td><td class="code">error()</td><td>SYS</td><td>Log anomalies to the mission control terminal.</td></tr>
+                <tr><td class="code">DifficultyCurve</td><td class="code">scale()</td><td>LOGIC</td><td>Adjust enemy density based on level index.</td></tr>
+            </tbody>
+        </table>
+    </section>
+
+    <footer>
+        <p style="margin-top: 5rem; opacity: 0.2;">DOCUMENT_HASH: 0x9F2E7A // GENERATED_AT: 2026-04-20</p>
+    </footer>
+</body>
+</html>
