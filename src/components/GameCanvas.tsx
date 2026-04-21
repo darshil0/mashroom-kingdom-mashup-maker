@@ -5,8 +5,8 @@
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { 
-  LevelData, TileType, EntityType, GameMode, CharacterType, 
-  Player, Entity, Vector2D 
+  LevelData, TileType, EntityType, CharacterType,
+  Player, Entity
 } from '../types';
 import { TILE_SIZE, GRAVITY, FRICTION, CHARACTERS, COLORS } from '../constants';
 import { checkTileCollision, isRectOverlap } from '../utils/physics';
@@ -77,6 +77,108 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     setTiles(stateRef.current.tiles);
     setEntities(stateRef.current.entities);
   }, [levelData]);
+
+  const handleBlockHit = useCallback((x: number, y: number) => {
+    const tile = stateRef.current.tiles[y][x];
+    if (tile === 'BRICK' && stateRef.current.player.isBig) {
+      stateRef.current.tiles[y][x] = 'EMPTY';
+      setTiles([...stateRef.current.tiles]);
+    } else if (tile === 'QUESTION') {
+      stateRef.current.tiles[y][x] = 'EMPTY'; // Or a 'spent' block
+      setTiles([...stateRef.current.tiles]);
+      // Spawn Mushroom
+      stateRef.current.entities.push({
+        id: `mushroom-${Date.now()}`,
+        type: 'MUSHROOM',
+        pos: { x: x * TILE_SIZE, y: (y - 1) * TILE_SIZE },
+        vel: { x: 2, y: 0 },
+        width: TILE_SIZE - 4,
+        height: TILE_SIZE - 4,
+        isGrounded: false,
+        isDead: false,
+        direction: 1,
+      });
+    } else if (tile === 'GOAL_TOP' || tile === 'GOAL_BODY') {
+       if (!stateRef.current.isFinished) {
+         stateRef.current.isFinished = true;
+         onWin();
+       }
+    }
+  }, [onWin]);
+
+  const handleEntityInteraction = useCallback((entity: Entity) => {
+    const { player } = stateRef.current;
+    if (entity.isDead) return;
+
+    if (entity.type === 'GOOMBA') {
+      // Stomp
+      if (player.vel.y > 0 && player.pos.y + player.height < entity.pos.y + 10) {
+        entity.isDead = true;
+        player.vel.y = -8;
+        player.score += 100;
+      } else if (player.invincibilityTime <= 0) {
+        if (player.isBig) {
+          player.isBig = false;
+          player.height = 30;
+          player.invincibilityTime = 60;
+        } else {
+          player.isDead = true;
+          if (!stateRef.current.isFinished) {
+            stateRef.current.isFinished = true;
+            onGameOver();
+          }
+        }
+      }
+    } else if (entity.type === 'MUSHROOM') {
+      entity.isDead = true;
+      player.isBig = true;
+      player.height = 58;
+      player.score += 1000;
+    } else if (entity.type === 'COIN') {
+      entity.isDead = true;
+      player.coins++;
+      player.score += 200;
+    }
+  }, [onGameOver]);
+
+  const handleAbility = useCallback((player: Player, entities: Entity[]) => {
+    switch (player.character) {
+      case 'MARIO':
+        // Spin kill nearby
+        entities.forEach(e => {
+          const dist = Math.hypot(e.pos.x - player.pos.x, e.pos.y - player.pos.y);
+          if (dist < 100 && e.type === 'GOOMBA') e.isDead = true;
+        });
+        player.invincibilityTime = 30;
+        break;
+      case 'LUIGI': {
+        player.invincibilityTime = 60;
+        // Dash with collision check
+        const dashDistance = 120;
+        const steps = 10;
+        for (let i = 0; i < steps; i++) {
+          const nextX = player.pos.x + (player.direction * (dashDistance / steps));
+          const testPos = { ...player.pos, x: nextX };
+          const col = checkTileCollision(testPos, player.width, player.height, stateRef.current.tiles);
+          if (!col.collision) {
+            player.pos.x = nextX;
+          } else {
+            break; // Stop at wall
+          }
+        }
+        break;
+      }
+      case 'TOAD':
+        // Super Jump / Sprout boost
+        player.vel.y = -18;
+        player.isGrounded = false;
+        player.invincibilityTime = 20;
+        break;
+      case 'PEACH':
+        player.invincibilityTime = 180; // 3 seconds of shield
+        break;
+    }
+  }, []);
 
   const update = useCallback((ctrl: Controls) => {
     const { player, entities, tiles } = stateRef.current;
@@ -239,121 +341,9 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     setPlayer({ ...player });
     setEntities([...entities]);
     onStateChange({ player, coins: player.coins, score: player.score });
-  }, [onGameOver, onWin, onStateChange]);
+  }, [onGameOver, onWin, onStateChange, handleAbility, handleBlockHit, handleEntityInteraction]);
 
-  const handleBlockHit = (x: number, y: number) => {
-    const tile = stateRef.current.tiles[y][x];
-    if (tile === 'BRICK' && stateRef.current.player.isBig) {
-      stateRef.current.tiles[y][x] = 'EMPTY';
-      setTiles([...stateRef.current.tiles]);
-    } else if (tile === 'QUESTION') {
-      stateRef.current.tiles[y][x] = 'EMPTY'; // Or a 'spent' block
-      setTiles([...stateRef.current.tiles]);
-      // Spawn Mushroom
-      stateRef.current.entities.push({
-        id: `mushroom-${Date.now()}`,
-        type: 'MUSHROOM',
-        pos: { x: x * TILE_SIZE, y: (y - 1) * TILE_SIZE },
-        vel: { x: 2, y: 0 },
-        width: TILE_SIZE - 4,
-        height: TILE_SIZE - 4,
-        isGrounded: false,
-        isDead: false,
-        direction: 1,
-      });
-    } else if (tile === 'GOAL_TOP' || tile === 'GOAL_BODY') {
-       if (!stateRef.current.isFinished) {
-         stateRef.current.isFinished = true;
-         onWin();
-       }
-    }
-  };
-
-  const handleEntityInteraction = (entity: Entity) => {
-    const { player } = stateRef.current;
-    if (entity.isDead) return;
-
-    if (entity.type === 'GOOMBA') {
-      // Stomp
-      if (player.vel.y > 0 && player.pos.y + player.height < entity.pos.y + 10) {
-        entity.isDead = true;
-        player.vel.y = -8;
-        player.score += 100;
-      } else if (player.invincibilityTime <= 0) {
-        if (player.isBig) {
-          player.isBig = false;
-          player.height = 30;
-          player.invincibilityTime = 60;
-        } else {
-          player.isDead = true;
-          if (!stateRef.current.isFinished) {
-            stateRef.current.isFinished = true;
-            onGameOver();
-          }
-        }
-      }
-    } else if (entity.type === 'MUSHROOM') {
-      entity.isDead = true;
-      player.isBig = true;
-      player.height = 58;
-      player.score += 1000;
-    } else if (entity.type === 'COIN') {
-      entity.isDead = true;
-      player.coins++;
-      player.score += 200;
-    }
-  };
-
-  const handleAbility = (player: Player, entities: Entity[]) => {
-    switch (player.character) {
-      case 'MARIO':
-        // Spin kill nearby
-        entities.forEach(e => {
-          const dist = Math.hypot(e.pos.x - player.pos.x, e.pos.y - player.pos.y);
-          if (dist < 100 && e.type === 'GOOMBA') e.isDead = true;
-        });
-        player.invincibilityTime = 30;
-        break;
-      case 'LUIGI':
-      player.invincibilityTime = 60;
-      // Dash with collision check
-      const dashDistance = 120;
-      const steps = 10;
-      for (let i = 0; i < steps; i++) {
-        const nextX = player.pos.x + (player.direction * (dashDistance / steps));
-        const testPos = { ...player.pos, x: nextX };
-        const col = checkTileCollision(testPos, player.width, player.height, stateRef.current.tiles);
-        if (!col.collision) {
-          player.pos.x = nextX;
-        } else {
-          break; // Stop at wall
-        }
-      }
-      break;
-    case 'TOAD':
-      // Super Jump / Sprout boost
-      player.vel.y = -18;
-      player.isGrounded = false;
-      player.invincibilityTime = 20;
-      break;
-    case 'PEACH':
-      player.invincibilityTime = 180; // 3 seconds of shield
-      break;
-  }
-};
-
-  useEffect(() => {
-    let frame = 0;
-    const loop = () => {
-      update(controls);
-      draw();
-      frame = requestAnimationFrame(loop);
-    };
-    frame = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(frame);
-  }, [controls, update]);
-
-  const draw = () => {
+  const draw = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -369,7 +359,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     tiles.forEach((row, y) => {
       row.forEach((tile, x) => {
         if (tile === 'EMPTY') return;
-        ctx.fillStyle = COLORS[tile] || '#000';
+        ctx.fillStyle = COLORS[tile as keyof typeof COLORS] || '#000';
         if (tile.startsWith('PIPE')) ctx.fillStyle = COLORS.PIPE;
         if (tile.startsWith('GOAL')) ctx.fillStyle = COLORS.GOAL;
         
@@ -382,7 +372,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     // Draw Entities
     entities.forEach((e) => {
       if (e.isDead) return;
-      ctx.fillStyle = COLORS[e.type] || '#fff';
+      ctx.fillStyle = COLORS[e.type as keyof typeof COLORS] || '#fff';
       if (e.type === 'COIN') {
         ctx.beginPath();
         ctx.arc(e.pos.x + e.width/2, e.pos.y + e.height/2, e.width/2, 0, Math.PI * 2);
@@ -481,7 +471,18 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     }
 
     ctx.restore();
-  };
+  }, [camera, entities, tiles]);
+
+  useEffect(() => {
+    let frame = 0;
+    const loop = () => {
+      update(controls);
+      draw();
+      frame = requestAnimationFrame(loop);
+    };
+    frame = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(frame);
+  }, [controls, update, draw]);
 
   return (
     <div className="relative border-4 border-black bg-black overflow-hidden aspect-video w-full">

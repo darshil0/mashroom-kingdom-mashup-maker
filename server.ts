@@ -9,31 +9,36 @@ app.use(express.json());
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
 
 const LEVEL_SCHEMA = {
-  type: 'object' as any,
+  type: Type.OBJECT,
   properties: {
-    width: { type: 'number' as any, description: "Width of the level in tiles" },
-    height: { type: 'number' as any, description: "Height of the level in tiles" },
+    width: { type: Type.NUMBER, description: "Width of the level in tiles" },
+    height: { type: Type.NUMBER, description: "Height of the level in tiles" },
     tiles: {
-      type: 'array' as any,
+      type: Type.ARRAY,
       items: {
-        type: 'array' as any,
-        items: { type: 'string' as any, description: "Tile type: EMPTY, GROUND, BRICK, QUESTION, PIPE_TOP_LEFT, etc." }
+        type: Type.ARRAY,
+        items: { type: Type.STRING, description: "Tile type: EMPTY, GROUND, BRICK, QUESTION, PIPE_TOP_LEFT, etc." }
       }
     },
     entities: {
-      type: 'array' as any,
+      type: Type.ARRAY,
       items: {
-        type: 'object' as any,
+        type: Type.OBJECT,
         properties: {
-          type: { type: 'string' as any, description: "Entity type: GOOMBA, COIN, MUSHROOM" },
-          x: { type: 'number' as any, description: "X coordinate in tiles" },
-          y: { type: 'number' as any, description: "Y coordinate in tiles" }
+          type: { type: Type.STRING, description: "Entity type: GOOMBA, COIN, MUSHROOM" },
+          x: { type: Type.NUMBER, description: "X coordinate in tiles" },
+          y: { type: Type.NUMBER, description: "Y coordinate in tiles" }
         }
       }
     }
   },
   required: ["width", "height", "tiles", "entities"]
 };
+
+// Health Check
+app.get('/api/health', (req, res) => {
+  res.json({ status: "healthy", ai_module: !!process.env.GEMINI_API_KEY });
+});
 
 // API: Generate Level
 app.post('/api/generate-level', async (req, res) => {
@@ -87,9 +92,9 @@ app.post('/api/generate-level', async (req, res) => {
       },
     });
 
-    const text = response.text;
-    if (!text) throw new Error("Empty response");
-    res.json(JSON.parse(text));
+    const responseText = response.response.text();
+    if (!responseText) throw new Error("Empty response");
+    res.json(JSON.parse(responseText));
   } catch (error) {
     console.error("Failed to generate level:", error);
     res.status(500).json({ error: "Generation failed" });

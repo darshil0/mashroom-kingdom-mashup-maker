@@ -10,6 +10,15 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ mode, coins, score, onExit }) => {
+  const [health, setHealth] = React.useState<{ status: string; ai_module: boolean } | null>(null);
+
+  React.useEffect(() => {
+    fetch('/api/health')
+      .then(res => res.json())
+      .then(data => setHealth(data))
+      .catch(() => setHealth({ status: "error", ai_module: false }));
+  }, []);
+
   return (
     <header id="main-header" className="p-4 border-b border-white/10 flex justify-between items-center bg-black/40 backdrop-blur-xl sticky top-0 z-50">
       <div className="flex items-center gap-3">
@@ -18,7 +27,9 @@ export const Header: React.FC<HeaderProps> = ({ mode, coins, score, onExit }) =>
         </div>
         <div>
           <h1 className="text-xl font-black tracking-tighter uppercase italic leading-none">Kingdom Maker</h1>
-          <p className="text-[9px] text-white/40 font-black uppercase tracking-[0.3em] mt-1">Mashup Engine v1.7.0 // SYS_READY</p>
+          <p className="text-[9px] text-white/40 font-black uppercase tracking-[0.3em] mt-1">
+            Mashup Engine v1.7.0 // {health?.status === 'healthy' ? (health.ai_module ? 'SYS_READY' : 'AI_OFFLINE') : 'SYS_ERROR'}
+          </p>
         </div>
       </div>
 
