@@ -34,7 +34,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     id: 'player',
     type: 'PLAYER',
     character,
-    pos: { x: 64, y: 300 },
+    pos: { x: 64, y: levelData.tiles.length * TILE_SIZE - 2 * TILE_SIZE },
     vel: { x: 0, y: 0 },
     width: 28,
     height: 30,
