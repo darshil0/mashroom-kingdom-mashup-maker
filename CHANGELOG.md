@@ -2,6 +2,18 @@
 
 All notable changes to the **Mushroom Kingdom Mashup Maker** will be documented in this file.
 
+### [1.7.5] - 2026-04-21
+
+#### Fixed
+- **Campaign Persistence**: Integrated `localStorage` to preserve world progress, total scores, and unlocks.
+- **Viewport Culling**: Implemented dynamic tile and entity culling in `GameCanvas.tsx` for enhanced rendering performance.
+- **AI Stability Patch**: Added exponential backoff retry logic and request timeouts to `geminiService.ts`.
+- **Physics Null Safety**: Eliminated non-null assertions in the physics engine to prevent runtime crashes during tile collisions.
+- **Editor Synchronization**: Fixed a state sync bug where the Editor wouldn't reflect changes from shared level codes.
+- **Character Logic**: Added auto-reset for ability cooldowns and invincibility status on character change.
+- **Tactile Feedback**: Added animated loading states and button disabling for the SYNC interface in `MainMenu.tsx`.
+- **Goomba Ledge Detection**: Fixed out-of-bounds array access in enemy patrol logic.
+
 ### [1.7.4] - 2026-04-21
 
 #### Added

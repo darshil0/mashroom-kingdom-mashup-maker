@@ -59,7 +59,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
       <div className="lg:col-span-7 space-y-12">
         <div id="main-hero-text" className="space-y-6">
            <div className="inline-flex px-3 py-1 bg-red-600/10 border border-red-500/20 rounded-full">
-              <span className="text-[9px] font-black text-red-500 uppercase tracking-widest">v1.7.4 Stable // Auth: Level 4</span>
+              <span className="text-[9px] font-black text-red-500 uppercase tracking-widest">v1.7.5 Stable // Auth: Level 4</span>
            </div>
           <h2 className="text-8xl font-black italic tracking-tighter leading-[0.85] uppercase">
             Build. <br />

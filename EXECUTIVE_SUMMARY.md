@@ -1,4 +1,4 @@
-# 🚀 Executive Summary: Mashup Engine v1.7.4
+# 🚀 Executive Summary: Mashup Engine v1.7.5
 
 ## **Overview**
 The **Mushroom Kingdom Mashup Maker** is a high-performance, AI-driven platforming engine built on a hybrid architecture of React and Semantic HTML5. It represents a significant leap in procedural level design, leveraging the Google Gemini API to transform natural language prompts into playable, high-fidelity platforming sectors.

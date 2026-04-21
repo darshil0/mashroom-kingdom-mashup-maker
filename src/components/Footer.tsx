@@ -33,7 +33,7 @@ export const Footer: React.FC = () => {
           </div>
           <div className="flex items-center gap-2">
              <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-             <span className="text-[7px] font-black uppercase tracking-widest leading-none mt-0.5 whitespace-nowrap">Engine_Stable // v1.7.4.42_R3</span>
+             <span className="text-[7px] font-black uppercase tracking-widest leading-none mt-0.5 whitespace-nowrap">Engine_Stable // v1.7.5.42_R3</span>
           </div>
        </div>
        <div className="h-0.5 w-full bg-red-600 mt-2 shadow-[0_0_15px_rgba(220,38,38,0.5)]" />
