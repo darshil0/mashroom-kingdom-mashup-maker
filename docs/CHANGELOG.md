@@ -98,7 +98,7 @@ All notable changes to the **Mushroom Kingdom Mashup Maker** will be documented 
 - **Orbital AI Generation Terminal**: New loading screen for Gemini level construction with animated orbital scanners and progress logs.
 - **Engine Footer**: Added a real-time status footer with control hints and system stability indicators.
 - **DOM Modernization**: Injected unique IDs across all UI components for better organization and reliability.
-- **Version Calibration**: Synchronized all internal engine version strings to v1.7.0.
+- **Version Calibration**: Synchronized all internal engine version strings to V1.8.0.
 
 #### Fixed
 - **Background Grid CSS**: Resolved a rendering issue in the background grid by correcting CSS property names.
