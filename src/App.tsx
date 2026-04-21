@@ -31,8 +31,7 @@ export default function App() {
   const [prompt, setPrompt] = useState("");
   const [generationError, setGenerationError] = useState<string | null>(null);
   const [shareCode, setShareCode] = useState("");
-  const [lastGeneratedCode, setLastGeneratedCode] = useState(""); // For editor display
-  const [campaignProgress, setCampaignProgress] = useState<CampaignProgress>({ currentLevel: 0, totalScore: 0, unlocked: 1 });
+  const [campaignProgress, setCampaignProgress] = useState<CampaignProgress>({ currentLevel: 0, totalScore: 0 });
   const [statusMessage, setStatusMessage] = useState<{ text: string, type: 'ALERT' | 'SUCCESS' | 'INFO' } | null>(null);
   const { controls } = useControls();
 
@@ -97,8 +96,7 @@ export default function App() {
         setCampaignProgress(prev => ({
           ...prev,
           currentLevel: nextLevelIdx,
-          totalScore: prev.totalScore + gameState.score,
-          unlocked: Math.max(prev.unlocked, nextLevelIdx + 1)
+          totalScore: prev.totalScore + gameState.score
         }));
         setLevelData(nextLevel);
         setGameState(prev => ({ ...prev, score: 0, coins: 0 }));
@@ -355,7 +353,6 @@ export default function App() {
                   setMode('MENU');
                 }} 
                 onShare={(code) => {
-                  setLastGeneratedCode(code);
                   navigator.clipboard.writeText(code);
                 }}
                />

@@ -74,7 +74,6 @@ export interface GameState {
 export interface CampaignProgress {
   currentLevel: number;
   totalScore: number;
-  unlocked: number;
 }
 
-export type GameMode = 'MENU' | 'EDITOR' | 'PLAY' | 'GAME_OVER' | 'WIN' | 'CAMPAIGN' | 'LEVEL_SELECT';
+export type GameMode = 'MENU' | 'EDITOR' | 'PLAY' | 'GAME_OVER' | 'WIN' | 'CAMPAIGN';

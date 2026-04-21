@@ -34,7 +34,7 @@ export const Footer: React.FC = () => {
           </div>
           <div id="engine-status" className="flex items-center gap-2">
              <div id="indicator-status" className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-             <span id="txt-engine-version" className="text-[7px] font-black uppercase tracking-widest leading-none mt-0.5 whitespace-nowrap">Engine_Stable // v1.7.5.42_R3</span>
+             <span id="txt-engine-version" className="text-[7px] font-black uppercase tracking-widest leading-none mt-0.5 whitespace-nowrap">Engine_Stable // v1.8.0_R3</span>
           </div>
        </div>
        <div className="h-0.5 w-full bg-red-600 mt-2 shadow-[0_0_15px_rgba(220,38,38,0.5)]" />

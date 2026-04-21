@@ -42,7 +42,7 @@ export const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ isVisible, curre
              <div className="w-full space-y-2">
                 <div className="flex justify-between items-end px-2">
                    <span className="text-[8px] font-black text-white/20 uppercase tracking-widest">Construction Progress</span>
-                   <span className="text-[8px] font-black text-blue-500 uppercase tracking-widest">v1.7.5 Stable</span>
+                   <span className="text-[8px] font-black text-blue-500 uppercase tracking-widest">v1.8.0 Stable</span>
                 </div>
                 <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden p-0.5 border border-white/5">
                    <motion.div 
