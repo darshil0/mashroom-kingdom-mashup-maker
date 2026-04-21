@@ -51,6 +51,16 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   const [entities, setEntities] = useState<Entity[]>([]);
   const [tiles, setTiles] = useState<TileType[][]>([]);
   const [camera, setCamera] = useState<number>(0);
+
+  // Issue 10: Reset player state when character changes
+  useEffect(() => {
+    setPlayer(prev => ({
+      ...prev,
+      character,
+      abilityCooldown: 0,
+      invincibilityTime: 0
+    }));
+  }, [character]);
   
   // Ref for mutable state to use in game loop
   const stateRef = useRef({
@@ -109,15 +119,15 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     // Move X
     player.pos.x += player.vel.x;
     let collision = checkTileCollision(player.pos, player.width, player.height, tiles);
-    if (collision.collision) {
+    if (collision.collision && collision.x !== undefined) {
       if (collision.type && collision.type.startsWith('GOAL')) {
         if (!stateRef.current.isFinished) {
           stateRef.current.isFinished = true;
           onWin();
         }
       } else {
-        if (player.vel.x > 0) player.pos.x = collision.x! * TILE_SIZE - player.width;
-        else if (player.vel.x < 0) player.pos.x = (collision.x! + 1) * TILE_SIZE;
+        if (player.vel.x > 0) player.pos.x = collision.x * TILE_SIZE - player.width;
+        else if (player.vel.x < 0) player.pos.x = (collision.x + 1) * TILE_SIZE;
         player.vel.x = 0;
       }
     }
@@ -125,7 +135,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     // Move Y
     player.pos.y += player.vel.y;
     collision = checkTileCollision(player.pos, player.width, player.height, tiles);
-    if (collision.collision) {
+    if (collision.collision && collision.y !== undefined && collision.x !== undefined) {
       if (collision.type && collision.type.startsWith('GOAL')) {
         if (!stateRef.current.isFinished) {
           stateRef.current.isFinished = true;
@@ -133,17 +143,18 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         }
       } else {
         if (player.vel.y > 0) {
-          player.pos.y = collision.y! * TILE_SIZE - player.height;
+          player.pos.y = collision.y * TILE_SIZE - player.height;
           player.isGrounded = true;
           player.vel.y = 0;
         } else if (player.vel.y < 0) {
-          player.pos.y = (collision.y! + 1) * TILE_SIZE;
+          player.pos.y = (collision.y + 1) * TILE_SIZE;
           player.vel.y = 0;
           // Hit block from below
-          handleBlockHit(collision.x!, collision.y!);
+          handleBlockHit(collision.x, collision.y);
         }
       }
-    } else {
+    }
+ else {
       player.isGrounded = false;
     }
 
@@ -176,7 +187,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         
         // Ledge detection
         let isLedge = false;
-        if (tileY < tiles.length && tileX >= 0 && tileX < tiles[0].length) {
+        if (tileY >= 0 && tileY < tiles.length && tileX >= 0 && tileX < tiles[0].length) {
           if (tiles[tileY][tileX] === 'EMPTY') {
             isLedge = true;
           }
@@ -193,8 +204,8 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         e.vel.y += GRAVITY;
         e.pos.y += e.vel.y;
         c = checkTileCollision(e.pos, e.width, e.height, tiles);
-        if (c.collision) {
-          e.pos.y = c.y! * TILE_SIZE - e.height;
+        if (c.collision && c.y !== undefined) {
+          e.pos.y = c.y * TILE_SIZE - e.height;
           e.vel.y = 0;
         }
       } else if (e.type === 'MUSHROOM') {
@@ -350,7 +361,10 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       frame = requestAnimationFrame(loop);
     };
     frame = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(frame);
+    return () => {
+      cancelAnimationFrame(frame);
+      (stateRef as any).current = null;
+    };
   }, [controls, update]);
 
   const draw = () => {
@@ -366,23 +380,31 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     ctx.translate(-camera, 0);
 
     // Draw Tiles
+    const cameraLeft = camera;
+    const cameraRight = camera + canvas.width;
+
     tiles.forEach((row, y) => {
       row.forEach((tile, x) => {
+        const tileX = x * TILE_SIZE;
+        if (tileX + TILE_SIZE < cameraLeft || tileX > cameraRight) return; // Cull
         if (tile === 'EMPTY') return;
-        ctx.fillStyle = COLORS[tile] || '#000';
+        
+        ctx.fillStyle = COLORS[tile as keyof typeof COLORS] || '#000';
         if (tile.startsWith('PIPE')) ctx.fillStyle = COLORS.PIPE;
         if (tile.startsWith('GOAL')) ctx.fillStyle = COLORS.GOAL;
         
-        ctx.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+        ctx.fillRect(tileX, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
         ctx.strokeStyle = 'rgba(0,0,0,0.2)';
-        ctx.strokeRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+        ctx.strokeRect(tileX, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
       });
     });
 
     // Draw Entities
     entities.forEach((e) => {
       if (e.isDead) return;
-      ctx.fillStyle = COLORS[e.type] || '#fff';
+      if (e.pos.x + e.width < cameraLeft || e.pos.x > cameraRight) return; // Cull entities too
+      
+      ctx.fillStyle = COLORS[e.type as keyof typeof COLORS] || '#fff';
       if (e.type === 'COIN') {
         ctx.beginPath();
         ctx.arc(e.pos.x + e.width/2, e.pos.y + e.height/2, e.width/2, 0, Math.PI * 2);

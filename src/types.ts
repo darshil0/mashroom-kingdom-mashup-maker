@@ -14,7 +14,8 @@ export type TileType =
   | 'PIPE_BODY_RIGHT'
   | 'GOAL_TOP'
   | 'GOAL_BODY'
-  | 'SPIKE';
+  | 'SPIKE'
+  | 'SKY';
 
 export type EntityType = 
   | 'PLAYER' 

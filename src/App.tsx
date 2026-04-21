@@ -35,6 +35,23 @@ export default function App() {
   const [campaignProgress, setCampaignProgress] = useState<CampaignProgress>({ currentLevel: 0, totalScore: 0, unlocked: 1 });
   const { controls } = useControls();
 
+  // Persistence: Load on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('campaign-progress');
+    if (saved) {
+      try {
+        setCampaignProgress(JSON.parse(saved));
+      } catch (e) {
+        console.error('Failed to load campaign progress:', e);
+      }
+    }
+  }, []);
+
+  // Persistence: Save on change
+  useEffect(() => {
+    localStorage.setItem('campaign-progress', JSON.stringify(campaignProgress));
+  }, [campaignProgress]);
+
   const handleStartGame = () => {
     setMode('PLAY');
     setGameState({ score: 0, coins: 0, player: null });
@@ -76,6 +93,8 @@ export default function App() {
         }));
         setLevelData(nextLevel);
         setGameState(prev => ({ ...prev, score: 0, coins: 0 }));
+      } else {
+        setGenerationError("FORGE_FAILURE: Level reconstruction failed. Retrying...");
       }
       setIsGenerating(false);
     } else {
@@ -231,7 +250,7 @@ export default function App() {
                     <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
                        <motion.div 
                         initial={false}
-                        animate={{ width: `${gameState.player ? (1 - (gameState.player as any).abilityCooldown / CHARACTERS[character].abilityCooldown) * 100 : 100}%` }}
+                        animate={{ width: `${gameState.player ? (1 - gameState.player.abilityCooldown / CHARACTERS[character].abilityCooldown) * 100 : 100}%` }}
                         className="h-full bg-gradient-to-r from-blue-600 to-blue-400 transition-all duration-300" 
                        />
                     </div>
@@ -431,6 +450,12 @@ interface EditorProps {
 
 const Editor: React.FC<EditorProps> = ({ initialLevel, onSave, onShare }) => {
   const [level, setLevel] = useState<LevelData>(JSON.parse(JSON.stringify(initialLevel)));
+
+  // Sync with parent when initialLevel changes (e.g. from share code)
+  useEffect(() => {
+    setLevel(JSON.parse(JSON.stringify(initialLevel)));
+  }, [initialLevel]);
+
   const [selectedTile, setSelectedTile] = useState<TileType>('GROUND');
   const [selectedEntity, setSelectedEntity] = useState<EntityType | null>(null);
   const [tool, setTool] = useState<'TILE' | 'ENTITY'>('TILE');
@@ -483,6 +508,8 @@ const Editor: React.FC<EditorProps> = ({ initialLevel, onSave, onShare }) => {
   }, [tool, selectedTile, selectedEntity]);
 
   const handleTileClick = (x: number, y: number) => {
+    if (x < 0 || x >= level.width || y < 0 || y >= level.height) return;
+
     const newLevel = { ...level };
     if (tool === 'TILE') {
       newLevel.tiles[y][x] = newLevel.tiles[y][x] === selectedTile ? 'EMPTY' : selectedTile;

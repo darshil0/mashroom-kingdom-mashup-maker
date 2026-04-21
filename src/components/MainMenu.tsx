@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { 
   Play, Edit2, Wand2, RefreshCw, Trophy, 
@@ -38,6 +38,16 @@ export const MainMenu: React.FC<MainMenuProps> = ({
   setPrompt,
   generationError
 }) => {
+  const [isLoadingCode, setIsLoadingCode] = useState(false);
+
+  const onSyncClick = async () => {
+    setIsLoadingCode(true);
+    // Simulate system sync time
+    await new Promise(r => setTimeout(r, 800));
+    handleLoadCode();
+    setIsLoadingCode(false);
+  };
+
   return (
     <motion.div 
       key="menu"
@@ -148,11 +158,12 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                 />
              </div>
              <button 
-               onClick={handleLoadCode}
-               className="px-10 py-4 bg-white text-black rounded-2xl font-black uppercase text-xs hover:bg-white/90 transition-all flex items-center gap-2"
+               onClick={onSyncClick}
+               disabled={isLoadingCode || !shareCode.trim()}
+               className="px-10 py-4 bg-white text-black rounded-2xl font-black uppercase text-xs hover:bg-white/90 disabled:bg-white/20 disabled:text-white/30 transition-all flex items-center gap-2"
              >
-               <RefreshCw size={14} />
-               SYNC
+               <RefreshCw size={14} className={isLoadingCode ? 'animate-spin' : ''} />
+               {isLoadingCode ? 'SYNCING...' : 'SYNC'}
              </button>
            </div>
         </div>
