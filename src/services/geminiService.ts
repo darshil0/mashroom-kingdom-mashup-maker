@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { LevelData } from "../types";
+import { TileType, EntityType } from "../types";
 
-export async function generateLevel(prompt: string, levelIndex: number = 0): Promise<LevelData | null> {
+export async function generateLevel(prompt: string, levelIndex: number = 0): Promise<any> {
   try {
     const response = await fetch('/api/generate-level', {
       method: 'POST',
@@ -13,11 +13,8 @@ export async function generateLevel(prompt: string, levelIndex: number = 0): Pro
       body: JSON.stringify({ prompt, levelIndex })
     });
     
-    if (!response.ok) {
-      const errorText = await response.text().catch(() => 'Unknown error');
-      throw new Error(`API request failed (${response.status}): ${errorText}`);
-    }
-    return await response.json() as LevelData;
+    if (!response.ok) throw new Error('API request failed');
+    return await response.json();
   } catch (error) {
     console.error("Failed to generate level:", error);
     return null;

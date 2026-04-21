@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import express from 'express';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI, Type } from "@google/genai";
@@ -48,12 +47,6 @@ app.post('/api/generate-level', async (req, res) => {
 
   const width = idx < 3 ? 40 : idx < 6 ? 60 : 80;
 
-  // Fallback level if API key is missing
-  if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === "your_api_key_here" || process.env.GEMINI_API_KEY === "MY_GEMINI_API_KEY") {
-    console.log("Using fallback level due to missing API key");
-    return res.json(generateFallbackLevel(width));
-  }
-
   try {
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
@@ -98,40 +91,10 @@ app.post('/api/generate-level', async (req, res) => {
     if (!text) throw new Error("Empty response");
     res.json(JSON.parse(text));
   } catch (error) {
-    console.error("Failed to generate level, using fallback:", error);
-    res.json(generateFallbackLevel(width));
+    console.error("Failed to generate level:", error);
+    res.status(500).json({ error: "Generation failed" });
   }
 });
-
-function generateFallbackLevel(width: number) {
-  const tiles: string[][] = Array(15).fill(null).map((_, y) =>
-    Array(width).fill(null).map((_, x) => {
-      if (y === 14) return 'GROUND';
-      if (x === width - 5 && y > 10) return 'GOAL_BODY';
-      if (x === width - 5 && y === 10) return 'GOAL_TOP';
-      return 'EMPTY';
-    })
-  );
-
-  // Add some random platforms and coins
-  for (let x = 5; x < width - 10; x += 5) {
-    tiles[11][x] = 'BRICK';
-    tiles[11][x+1] = 'QUESTION';
-    tiles[11][x+2] = 'BRICK';
-  }
-
-  return {
-    width,
-    height: 15,
-    tiles,
-    entities: [
-      { type: 'COIN', x: 10, y: 13 },
-      { type: 'COIN', x: 12, y: 13 },
-      { type: 'GOOMBA', x: 20, y: 13 },
-      { type: 'MUSHROOM', x: 6, y: 10 },
-    ]
-  };
-}
 
 async function startServer() {
   if (process.env.NODE_ENV !== "production") {

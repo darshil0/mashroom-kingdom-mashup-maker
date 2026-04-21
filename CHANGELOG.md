@@ -2,25 +2,38 @@
 
 All notable changes to the **Mushroom Kingdom Mashup Maker** will be documented in this file.
 
+### [1.7.4] - 2026-04-21
+
+#### Added
+- **Engine Config Refactor**: Centralized core game constants and tracking interfaces.
+- **Unified State Definitions**: Integrated `GameState` and `CampaignProgress` interfaces for strict type coverage.
+- **Static Asset Migration**: Moved `DEFAULT_LEVEL` and `CAMPAIGN_THEMES` to `constants.ts` for global accessibility.
+- **Enhanced Type Safety**: Refactored `GameCanvas.tsx` to utilize the new `GameState` interface, eliminating `any` usage.
+
+### [1.7.3] - 2026-04-21
+
+#### Added
+- **MainMenu Modularization**: Refactored the extensive menu system into `MainMenu.tsx`.
+- **Enhanced AI Error Handling**: Implemented `generationError` state with user-facing alerts in the AI Forge.
+- **Improved Handle Logic**: Centralized generation handles with improved error catching and logging.
+
 ### [1.7.2] - 2026-04-21
 
-#### Fixed
-- **Infinite Loading Overlay**: Wrapped `setIsGenerating(false)` in `finally` blocks across `handleFinishLevel` and `handleGenerateLevel` so the loading overlay always dismisses — even when the API call fails.
-- **Missing Environment Variables**: Added `dotenv/config` import to `server.ts` so `.env` file variables are correctly loaded into `process.env` at startup.
-- **Switch/Case Lint Violation**: Wrapped all `switch` cases in `handleAbility` (`GameCanvas.tsx`) with proper `{}` blocks to fix block-scoped `const` declarations (Luigi's dash variables) that violated `no-case-declarations`.
-- **WASD Controls Not Working**: `A` and `D` keys were not mapped in `useControls.ts` despite the UI advertising "Run: WASD". Added the missing key bindings.
-- **Shallow State Mutation in Editor**: `handleTileClick` and `clearEntities` in the Editor component mutated the spread object's nested arrays by reference. Rebuilt arrays immutably using `map()` and spread operators.
-- **Page Scroll Blocked**: `body` had `overflow-hidden` in `index.css`, preventing vertical scrolling on content-heavy screens. Changed to `overflow-x-hidden`.
+#### Added
+- **Restoration Complete**: Finished the reconstruction and bug-fix phase of the Mashup Engine.
+- **Component Modularization**: Successfully refactored the following components into dedicated source files:
+    - `Header.tsx`: Dynamic stats and navigation.
+    - `Footer.tsx`: Control hints and system stability telemetry.
+    - `LoadingOverlay.tsx`: AI Forge cinematic interface.
+    - `EditorToolbar.tsx`: Modular palette and tool selection for the level editor.
+    - `AbilityOverlay.tsx`: Real-time ability activation HUD notification.
+- **Utility Expansion**: Added `math.ts` for specialized geometric and interpolation algorithms.
+- **Documentation Integrity**: Added `CONTRIBUTING.md` and complete technical suite (9 Markdown, 8 HTML files).
 
-#### Improved
-- **Error State UI**: Added a `generationError` state and a visible error banner in the AI Forge panel so users are informed when level generation fails instead of failing silently.
-- **Type Safety Audit**: Eliminated all `any` type usage across the codebase:
-    - `geminiService.ts`: Return type changed from `Promise<any>` to `Promise<LevelData | null>`.
-    - `GameCanvas.tsx`: `onStateChange` prop typed from `(state: any)` to `(state: {player: Player, coins: number, score: number})`.
-    - `App.tsx`: Removed `(gameState.player as any).abilityCooldown` cast — player is already typed as `Player | null`.
-    - `App.tsx` + `EditorToolbar.tsx`: Replaced `(COLORS as any)[tile]` with type-safe `COLORS[tile as keyof typeof COLORS]`.
-- **API Error Reporting**: `geminiService.ts` now captures HTTP status codes and response body text in error messages for better debugging.
-- **Canvas Accessibility**: Added `tabIndex`, `role="application"`, and `aria-label` to the game canvas element for keyboard focus and screen reader support.
+#### Fixed
+- **API Schema Stability**: Finalized the `LEVEL_SCHEMA` in `server.ts` to ensure compatibility with Gemini 1.5 Flash.
+- **Character Definitions**: Injected missing `description` metadata into all hero units.
+- **Vite Config Polish**: Fixed encoding typos and HMR configuration comments.
 
 ### [1.7.1] - 2026-04-20
 

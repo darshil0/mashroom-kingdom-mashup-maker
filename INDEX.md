@@ -23,4 +23,4 @@ Welcome to the **Mushroom Kingdom Mashup Maker** Documentation Hub. Use this ind
 - [`archive_v1.html`](/archive_v1.html) - Sector mapping logs and coordinate dumps.
 
 ---
-*System Status: ALL_STREAMS_NOMINAL*
+*System Status: ALL_STREAMS_NOMINAL // V1.7.2_FINALIZED*

@@ -50,7 +50,7 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
             >
               <div 
                 className="w-10 h-10 rounded-lg shadow-inner group-hover:scale-110 transition-transform" 
-                style={{ backgroundColor: COLORS[t as keyof typeof COLORS] }} 
+                style={{ backgroundColor: (COLORS as any)[t] }} 
               />
               <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             </button>

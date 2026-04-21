@@ -61,4 +61,18 @@ export interface LevelData {
   }[];
 }
 
+/** Shared type for game state passed between components. */
+export interface GameState {
+  score: number;
+  coins: number;
+  player: Player | null;
+}
+
+/** Campaign progress tracking. */
+export interface CampaignProgress {
+  currentLevel: number;
+  totalScore: number;
+  unlocked: number;
+}
+
 export type GameMode = 'MENU' | 'EDITOR' | 'PLAY' | 'GAME_OVER' | 'WIN' | 'CAMPAIGN' | 'LEVEL_SELECT';

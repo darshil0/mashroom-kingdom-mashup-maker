@@ -6,7 +6,7 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { 
   LevelData, TileType, EntityType, GameMode, CharacterType, 
-  Player, Entity, Vector2D 
+  Player, Entity, Vector2D, GameState 
 } from '../types';
 import { TILE_SIZE, GRAVITY, FRICTION, CHARACTERS, COLORS } from '../constants';
 import { checkTileCollision, isRectOverlap } from '../utils/physics';
@@ -16,7 +16,7 @@ interface GameCanvasProps {
   levelData: LevelData;
   character: CharacterType;
   controls: Controls;
-  onStateChange: (state: {player: Player, coins: number, score: number}) => void;
+  onStateChange: (state: GameState) => void;
   onWin: () => void;
   onGameOver: () => void;
 }
@@ -34,7 +34,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     id: 'player',
     type: 'PLAYER',
     character,
-    pos: { x: 64, y: levelData.tiles.length * TILE_SIZE - 2 * TILE_SIZE },
+    pos: { x: 64, y: 300 },
     vel: { x: 0, y: 0 },
     width: 28,
     height: 30,
@@ -306,7 +306,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
 
   const handleAbility = (player: Player, entities: Entity[]) => {
     switch (player.character) {
-      case 'MARIO': {
+      case 'MARIO':
         // Spin kill nearby
         entities.forEach(e => {
           const dist = Math.hypot(e.pos.x - player.pos.x, e.pos.y - player.pos.y);
@@ -314,37 +314,33 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         });
         player.invincibilityTime = 30;
         break;
-      }
-      case 'LUIGI': {
-        player.invincibilityTime = 60;
-        // Dash with collision check
-        const dashDistance = 120;
-        const steps = 10;
-        for (let i = 0; i < steps; i++) {
-          const nextX = player.pos.x + (player.direction * (dashDistance / steps));
-          const testPos = { ...player.pos, x: nextX };
-          const col = checkTileCollision(testPos, player.width, player.height, stateRef.current.tiles);
-          if (!col.collision) {
-            player.pos.x = nextX;
-          } else {
-            break; // Stop at wall
-          }
+      case 'LUIGI':
+      player.invincibilityTime = 60;
+      // Dash with collision check
+      const dashDistance = 120;
+      const steps = 10;
+      for (let i = 0; i < steps; i++) {
+        const nextX = player.pos.x + (player.direction * (dashDistance / steps));
+        const testPos = { ...player.pos, x: nextX };
+        const col = checkTileCollision(testPos, player.width, player.height, stateRef.current.tiles);
+        if (!col.collision) {
+          player.pos.x = nextX;
+        } else {
+          break; // Stop at wall
         }
-        break;
       }
-      case 'TOAD': {
-        // Super Jump / Sprout boost
-        player.vel.y = -18;
-        player.isGrounded = false;
-        player.invincibilityTime = 20;
-        break;
-      }
-      case 'PEACH': {
-        player.invincibilityTime = 180; // 3 seconds of shield
-        break;
-      }
-    }
-  };
+      break;
+    case 'TOAD':
+      // Super Jump / Sprout boost
+      player.vel.y = -18;
+      player.isGrounded = false;
+      player.invincibilityTime = 20;
+      break;
+    case 'PEACH':
+      player.invincibilityTime = 180; // 3 seconds of shield
+      break;
+  }
+};
 
   useEffect(() => {
     let frame = 0;
@@ -494,9 +490,6 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         width={800} 
         height={480} 
         className="w-full h-full image-pixelated"
-        tabIndex={0}
-        role="application"
-        aria-label="Game Canvas - Use WASD or arrow keys to move, Space to jump, X for ability"
       />
     </div>
   );

@@ -18,7 +18,7 @@ export const Header: React.FC<HeaderProps> = ({ mode, coins, score, onExit }) =>
         </div>
         <div>
           <h1 className="text-xl font-black tracking-tighter uppercase italic leading-none">Kingdom Maker</h1>
-          <p className="text-[9px] text-white/40 font-black uppercase tracking-[0.3em] mt-1">Mashup Engine v1.7.0 // SYS_READY</p>
+          <p className="text-[9px] text-white/40 font-black uppercase tracking-[0.3em] mt-1">Mashup Engine v1.7.4 // SYS_READY</p>
         </div>
       </div>
 
