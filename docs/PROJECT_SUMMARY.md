@@ -7,7 +7,7 @@ Successfully restore, bug-fix, and modernize the **Mushroom Kingdom Mashup Maker
 | Status | Component | Description |
 |---|---|---|
 | ✅ FIXED | `src/constants.ts` | Added missing `description` fields to all character units. |
-| ✅ FIXED | `v1.7.5 Final` | Tactical UI/UX audit: Synchronized versioning, injected 30+ unique IDs, and enforced 44px touch targets. |
+| ✅ FIXED | `v1.8.0 Final` | Tactical UI/UX audit: Synchronized versioning, injected 30+ unique IDs, and enforced 44px touch targets. |
 | ✅ FIXED | `AI Orchestration` | Standardized Gemini API response handling and difficulty scaling. |
 | ✅ FIXED | `UI Safety` | Terminated synchronous `alert()` calls in favor of a state-driven Status Message Overlay. |
 | ✅ FIXED | `Asset Management` | Ensured 100% relative path resolution for all icons and sprites. |

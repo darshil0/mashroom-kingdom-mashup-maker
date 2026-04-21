@@ -24,7 +24,7 @@ All notable changes to the **Mushroom Kingdom Mashup Maker** will be documented 
 - **Unused Utilities**: Deleted `math.ts` and associated imports to reduce package bloat.
 - **Dead State & Types**: Purged `lastGeneratedCode`, `LEVEL_SELECT`, and `unlocked` fields to streamline state management and type definitions.
 
-### [1.7.5] - 2026-04-21
+### [1.8.0] - 2026-04-21
 
 #### Fixed
 - **Campaign Persistence**: Integrated `localStorage` to preserve world progress, total scores, and unlocks.
