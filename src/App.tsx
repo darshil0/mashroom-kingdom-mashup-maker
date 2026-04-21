@@ -3,23 +3,22 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useRef } from 'react';
-import { GameMode, CharacterType, LevelData, TileType, EntityType, GameState, CampaignProgress } from './types';
-import { CHARACTERS, TILE_SIZE, COLORS, DEFAULT_LEVEL, CAMPAIGN_THEMES } from './constants';
+import React, { useState, useEffect } from 'react';
+import { GameMode, CharacterType, LevelData, GameState, CampaignProgress } from './types';
+import { CHARACTERS, DEFAULT_LEVEL, CAMPAIGN_THEMES } from './constants';
 import { useControls } from './hooks/useControls';
 import { GameCanvas } from './components/GameCanvas';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { LoadingOverlay } from './components/LoadingOverlay';
 import { AbilityOverlay } from './components/AbilityOverlay';
-import { EditorToolbar } from './components/EditorToolbar';
 import { Editor } from './components/Editor';
 import { MainMenu } from './components/MainMenu';
 import { generateLevel } from './services/geminiService';
 import { serializeLevel, deserializeLevel } from './utils/levelSerialization';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
-  Play, Edit2, RefreshCw, Trophy, 
+  Play, RefreshCw, Trophy, 
   AlertCircle, Star, Coins, User, Settings
 } from 'lucide-react';
 
@@ -147,7 +146,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen text-white font-mono selection:bg-red-500 selection:text-white relative overflow-hidden">
+    <div className="min-h-screen text-white font-mono selection:bg-blue-600 selection:text-white relative overflow-hidden">
       <div className="noise-overlay" />
       <div className="scanline" />
       {/* Header handled by React components for dynamic state */}

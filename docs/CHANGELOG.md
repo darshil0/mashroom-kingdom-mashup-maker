@@ -19,6 +19,7 @@ All notable changes to the **Mushroom Kingdom Mashup Maker** will be documented 
 - **Goomba Ledge Detection**: Fixed out-of-bounds array access in enemy patrol logic.
 - **UI Safety (No-Alert)**: Removed all synchronous `window.alert` calls, replacing them with a non-blocking, state-driven Status Message Overlay.
 - **Deserialization Resilience**: Added defensive dimensional and null-checks to the level sharing protocol to prevent crashes from malformed codes.
+- **UI Calibration**: Corrected the global text selection color from red to blue to prevent "red blocks" during documentation highlighting.
 
 #### Added
 - **Visual Grid Overlay**: Implemented a 32px technical grid background across the entire platform as per Mission Control specifications.
