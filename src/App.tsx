@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { GameMode, CharacterType, LevelData, TileType, EntityType } from './types';
+import { GameMode, CharacterType, LevelData, TileType, EntityType, Player } from './types';
 import { CHARACTERS, TILE_SIZE, COLORS } from './constants';
 import { useControls } from './hooks/useControls';
 import { GameCanvas } from './components/GameCanvas';
@@ -43,7 +43,7 @@ export default function App() {
   const [mode, setMode] = useState<GameMode>('MENU');
   const [character, setCharacter] = useState<CharacterType>('MARIO');
   const [levelData, setLevelData] = useState<LevelData>(DEFAULT_LEVEL);
-  const [gameState, setGameState] = useState({ score: 0, coins: 0, player: null as any });
+  const [gameState, setGameState] = useState<{score: number, coins: number, player: Player | null}>({ score: 0, coins: 0, player: null });
   const [isGenerating, setIsGenerating] = useState(false);
   const [prompt, setPrompt] = useState("");
   const [shareCode, setShareCode] = useState("");
@@ -58,10 +58,17 @@ export default function App() {
 
   const startCampaign = async () => {
     setMode('CAMPAIGN');
-    const firstLevel = await generateLevel("A welcoming first level with green hills and few enemies", 0);
-    if (firstLevel) {
-      setLevelData(firstLevel);
-      setGameState({ score: 0, coins: 0, player: null });
+    setIsGenerating(true);
+    try {
+      const firstLevel = await generateLevel("A welcoming first level with green hills and few enemies", 0);
+      if (firstLevel) {
+        setLevelData(firstLevel);
+        setGameState({ score: 0, coins: 0, player: null });
+      }
+    } catch (err) {
+      console.error("Campaign start error:", err);
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -129,11 +136,16 @@ export default function App() {
 
   const handleGenerateLevel = async () => {
     setIsGenerating(true);
-    const newLevel = await generateLevel(prompt || "a fun mario level with pipes and coins");
-    if (newLevel) {
-      setLevelData(newLevel);
+    try {
+      const newLevel = await generateLevel(prompt || "a fun mario level with pipes and coins");
+      if (newLevel) {
+        setLevelData(newLevel);
+      }
+    } catch (err) {
+      console.error("Level generation error:", err);
+    } finally {
+      setIsGenerating(false);
     }
-    setIsGenerating(false);
   };
 
   return (
@@ -661,6 +673,8 @@ const Editor: React.FC<EditorProps> = ({ initialLevel, onSave, onShare }) => {
   const handleTileClick = (x: number, y: number) => {
     const newLevel = { ...level };
     if (tool === 'TILE') {
+      newLevel.tiles = [...level.tiles];
+      newLevel.tiles[y] = [...level.tiles[y]];
       newLevel.tiles[y][x] = newLevel.tiles[y][x] === selectedTile ? 'EMPTY' : selectedTile;
     } else if (selectedEntity) {
       // Remove any entity at this spot first
