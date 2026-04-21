@@ -25,6 +25,9 @@ All notable changes to the **Mushroom Kingdom Mashup Maker** will be documented 
 - **Block Interaction Update**: Introduced `SPENT` tile state for `QUESTION` blocks to provide immediate visual feedback after resource extraction.
 - **Control System Expansion**: Added full `WASD` support to align with modern platforming standards.
 - **Advanced Aesthetics**: Enhanced tile rendering with technical borders, accent corners, and upgraded `backdrop-blur-xl` glassmorphism.
+- **Cinematic Visuals**: Integrated a global noise-texture overlay and reactive 4-corner tech borders with hover states.
+- **Glitch Protocol**: Implemented CSS chromatic aberration glitch effects for high-intensity mission status headers.
+- **Scanline Fidelity**: Optimized scanline frequency and opacity for improved cinematic depth.
 
 #### Changed
 - **Documentation Alignment**: Synchronized `README.md` and UI hints with actual control schemes (WASD + Space + X/Shift).

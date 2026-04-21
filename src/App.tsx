@@ -148,6 +148,8 @@ export default function App() {
 
   return (
     <div className="min-h-screen text-white font-mono selection:bg-red-500 selection:text-white relative overflow-hidden">
+      <div className="noise-overlay" />
+      <div className="scanline" />
       {/* Header handled by React components for dynamic state */}
       {/* Status Overlay */}
       <AnimatePresence>
@@ -387,7 +389,7 @@ export default function App() {
                         <Trophy size={64} className="text-black" />
                       </motion.div>
                       <div className="space-y-2">
-                        <h2 className="text-8xl font-black italic uppercase tracking-tighter leading-none">MISSION_COMPLETE</h2>
+                        <h2 className="text-8xl font-black italic uppercase tracking-tighter leading-none glitch-text" data-text="MISSION_COMPLETE">MISSION_COMPLETE</h2>
                         <p className="text-[10px] font-black text-yellow-500 uppercase tracking-[0.5em]">Sector Cleared // Authorization Verified</p>
                       </div>
                     </div>
@@ -401,7 +403,7 @@ export default function App() {
                         <AlertCircle size={64} className="text-white" />
                       </motion.div>
                       <div className="space-y-2">
-                        <h2 className="text-8xl font-black italic uppercase tracking-tighter leading-none">UNIT_TERMINATED</h2>
+                        <h2 className="text-8xl font-black italic uppercase tracking-tighter leading-none glitch-text" data-text="UNIT_TERMINATED">UNIT_TERMINATED</h2>
                         <p className="text-[10px] font-black text-red-500 uppercase tracking-[0.5em]">Critical Failure // Connection Lost</p>
                       </div>
                     </div>
