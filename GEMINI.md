@@ -1,4 +1,4 @@
-# Gemini AI Configuration
+# Gemini AI Configuration (v1.8.0)
 
 ## Model Selection
 - Primary model: `gemini-3-flash-preview`
