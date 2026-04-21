@@ -29,6 +29,7 @@ All notable changes to the **Mushroom Kingdom Mashup Maker** will be documented 
 - **Cinematic Visuals**: Integrated a global noise-texture overlay and reactive 4-corner tech borders with hover states.
 - **Glitch Protocol**: Implemented CSS chromatic aberration glitch effects for high-intensity mission status headers.
 - **Scanline Fidelity**: Optimized scanline frequency and opacity for improved cinematic depth.
+- **Semantic Overhaul**: Refactored `App.tsx` with HTML5 semantic tags (`<main>`, `<section>`, `<header>`, `<article>`) and comprehensive ARIA accessibility attributes.
 
 #### Changed
 - **Documentation Alignment**: Synchronized `README.md` and UI hints with actual control schemes (WASD + Space + X/Shift).

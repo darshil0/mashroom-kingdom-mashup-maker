@@ -215,9 +215,9 @@ export default function App() {
               exit={{ opacity: 0, scale: 0.95 }}
               className="space-y-6"
             >
-              <div className="flex flex-col gap-4">
+              <section className="flex flex-col gap-4">
                 {mode === 'CAMPAIGN' && (
-                  <div className="px-2 space-y-2">
+                  <div className="px-2 space-y-2" role="progressbar" aria-valuenow={campaignProgress.currentLevel + 1} aria-valuemin={1} aria-valuemax={10}>
                     <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-white/40">
                       <span>World Progression</span>
                       <span className="text-yellow-500">Level {campaignProgress.currentLevel + 1} / 10</span>
@@ -232,10 +232,10 @@ export default function App() {
                   </div>
                 )}
 
-                <div className="flex justify-between items-end px-2">
+                <header className="flex justify-between items-end px-2">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      {mode === 'CAMPAIGN' && <Trophy size={14} className="text-yellow-500" />}
+                      {mode === 'CAMPAIGN' && <Trophy size={14} className="text-yellow-500" aria-hidden="true" />}
                       <span className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] block">
                         {mode === 'CAMPAIGN' ? `Campaign Mode` : 'Active Mission'}
                       </span>
@@ -259,8 +259,8 @@ export default function App() {
                       </div>
                     </div>
                   )}
-                </div>
-              </div>
+                </header>
+              </section>
               
               <GameCanvas 
                 levelData={levelData}
@@ -277,13 +277,13 @@ export default function App() {
               />
 
               {/* Control Hints Overlay */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                 <div className="p-5 bg-white/5 rounded-3xl border border-white/5 tech-border space-y-4">
+              <section className="grid grid-cols-1 md:grid-cols-4 gap-4" aria-label="Control Hints and Unit Status">
+                 <article className="p-5 bg-white/5 rounded-3xl border border-white/5 tech-border space-y-4">
                     <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-[0.2em] text-white/30">
                        <span>SYS_LOG: Ability_Link</span>
-                       <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                       <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" aria-hidden="true" />
                     </div>
-                    <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
+                    <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden" role="progressbar" aria-label="Ability Cooldown">
                        <motion.div 
                         initial={false}
                         animate={{ width: `${gameState.player ? (1 - gameState.player.abilityCooldown / CHARACTERS[character].abilityCooldown) * 100 : 100}%` }}
@@ -294,12 +294,12 @@ export default function App() {
                        <p className="text-xs font-black italic uppercase tracking-tight text-white/90">{CHARACTERS[character].abilityName}</p>
                        <p className="text-[9px] font-bold text-blue-500 uppercase tracking-widest mt-1">Press [X] to trigger</p>
                     </div>
-                 </div>
+                 </article>
                  
-                 <div className="md:col-span-2 glass-panel rounded-3xl p-5 border border-white/5 flex items-center justify-between">
+                 <article className="md:col-span-2 glass-panel rounded-3xl p-5 border border-white/5 flex items-center justify-between">
                     <div className="flex items-center gap-5">
                        <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-white/5 border border-white/10 group overflow-hidden relative">
-                          <User size={28} className="text-white/40 group-hover:scale-110 transition-transform" />
+                          <User size={28} className="text-white/40 group-hover:scale-110 transition-transform" aria-hidden="true" />
                           <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent" />
                        </div>
                        <div className="space-y-1">
@@ -314,29 +314,29 @@ export default function App() {
                     </div>
                     <div className="flex items-end flex-col gap-1">
                        <span className="text-[9px] font-black text-white/20 uppercase tracking-widest">Movement_Pwr</span>
-                       <div className="flex gap-1">
+                       <div className="flex gap-1" role="img" aria-label={`Speed rating: ${CHARACTERS[character].speed} out of 5`}>
                           {[1,2,3,4,5].map(i => (
                              <div key={i} className={`w-1.5 h-4 rounded-sm ${i <= CHARACTERS[character].speed ? 'bg-blue-500' : 'bg-white/5'}`} />
                           ))}
                        </div>
                     </div>
-                 </div>
+                 </article>
 
-                 <div className="p-5 tech-border rounded-3xl flex items-center justify-center gap-8">
+                 <article className="p-5 tech-border rounded-3xl flex items-center justify-center gap-8">
                     <div className="flex flex-col items-center gap-2">
                        <div className="p-3 bg-white/5 rounded-xl border border-white/10">
-                          <Play size={20} className="text-white/40" />
+                          <Play size={20} className="text-white/40" aria-hidden="true" />
                        </div>
                        <span className="text-[8px] font-black uppercase text-white/20 tracking-widest">Run: WASD</span>
                     </div>
                     <div className="flex flex-col items-center gap-2">
                        <div className="p-3 bg-white/5 rounded-xl border border-white/10">
-                          <Star size={20} className="text-white/40" />
+                          <Star size={20} className="text-white/40" aria-hidden="true" />
                        </div>
                        <span className="text-[8px] font-black uppercase text-white/20 tracking-widest">Jump: Space</span>
                     </div>
-                 </div>
-              </div>
+                 </article>
+              </section>
             </motion.div>
           )}
 
@@ -368,6 +368,9 @@ export default function App() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 z-[100] flex items-center justify-center p-6 sm:p-12 overflow-hidden"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="mission-status-title"
             >
               <div className="absolute inset-0 bg-[#050505]/95 backdrop-blur-3xl" />
               <div className="scanline" />
@@ -377,7 +380,7 @@ export default function App() {
                 animate={{ scale: 1, y: 0 }}
                 className="relative glass-panel tech-border rounded-[64px] p-12 max-w-2xl w-full space-y-12 text-center"
               >
-                <div className="space-y-6">
+                <header className="space-y-6">
                   {mode === 'WIN' ? (
                     <div className="space-y-8">
                        <motion.div 
@@ -385,10 +388,10 @@ export default function App() {
                         transition={{ repeat: Infinity, duration: 4 }}
                         className="w-32 h-32 bg-yellow-500 rounded-[40px] mx-auto flex items-center justify-center shadow-[0_30px_60px_rgba(234,179,8,0.4)] border-4 border-black"
                       >
-                        <Trophy size={64} className="text-black" />
+                        <Trophy size={64} className="text-black" aria-hidden="true" />
                       </motion.div>
                       <div className="space-y-2">
-                        <h2 className="text-8xl font-black italic uppercase tracking-tighter leading-none glitch-text" data-text="MISSION_COMPLETE">MISSION_COMPLETE</h2>
+                        <h2 id="mission-status-title" className="text-8xl font-black italic uppercase tracking-tighter leading-none glitch-text" data-text="MISSION_COMPLETE">MISSION_COMPLETE</h2>
                         <p className="text-[10px] font-black text-yellow-500 uppercase tracking-[0.5em]">Sector Cleared // Authorization Verified</p>
                       </div>
                     </div>
@@ -399,34 +402,34 @@ export default function App() {
                         transition={{ repeat: Infinity, duration: 2 }}
                         className="w-32 h-32 bg-red-600 rounded-[40px] mx-auto flex items-center justify-center shadow-[0_30px_60px_rgba(220,38,38,0.4)] border-4 border-black"
                       >
-                        <AlertCircle size={64} className="text-white" />
+                        <AlertCircle size={64} className="text-white" aria-hidden="true" />
                       </motion.div>
                       <div className="space-y-2">
-                        <h2 className="text-8xl font-black italic uppercase tracking-tighter leading-none glitch-text" data-text="UNIT_TERMINATED">UNIT_TERMINATED</h2>
+                        <h2 id="mission-status-title" className="text-8xl font-black italic uppercase tracking-tighter leading-none glitch-text" data-text="UNIT_TERMINATED">UNIT_TERMINATED</h2>
                         <p className="text-[10px] font-black text-red-500 uppercase tracking-[0.5em]">Critical Failure // Connection Lost</p>
                       </div>
                     </div>
                   )}
-                </div>
+                </header>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="p-8 bg-white/5 rounded-[32px] border border-white/5 space-y-2 group hover:bg-white/10 transition-all">
+                <section className="grid grid-cols-1 md:grid-cols-2 gap-6" role="status" aria-label="Mission Statistics">
+                  <article className="p-8 bg-white/5 rounded-[32px] border border-white/5 space-y-2 group hover:bg-white/10 transition-all">
                     <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Resource_Secured</p>
                     <div className="flex items-center justify-center gap-3">
-                       <Coins size={20} className="text-yellow-400" />
+                       <Coins size={20} className="text-yellow-400" aria-hidden="true" />
                        <p className="text-4xl font-black italic tracking-tighter">{gameState.coins.toString().padStart(3, '0')}</p>
                     </div>
-                  </div>
-                  <div className="p-8 bg-white/5 rounded-[32px] border border-white/5 space-y-2 group hover:bg-white/10 transition-all">
+                  </article>
+                  <article className="p-8 bg-white/5 rounded-[32px] border border-white/5 space-y-2 group hover:bg-white/10 transition-all">
                     <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Performance_Rating</p>
                     <div className="flex items-center justify-center gap-3">
-                       <Star size={20} className="text-blue-400" />
+                       <Star size={20} className="text-blue-400" aria-hidden="true" />
                        <p className="text-4xl font-black italic tracking-tighter">{gameState.score.toLocaleString()}</p>
                     </div>
-                  </div>
+                  </article>
                   
                   {campaignProgress.currentLevel > 0 && (
-                    <div className="md:col-span-2 p-8 bg-white/5 border border-white/10 rounded-[40px] flex flex-col items-center gap-4 group">
+                    <article className="md:col-span-2 p-8 bg-white/5 border border-white/10 rounded-[40px] flex flex-col items-center gap-4 group">
                        <div className="w-full flex justify-between items-center px-4">
                           <p className="text-[10px] font-black text-white/30 uppercase tracking-widest leading-none">Campaign_Log_0{(campaignProgress.currentLevel + 1)}</p>
                           <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest bg-blue-500/10 px-4 py-1 rounded-full border border-blue-500/20">TOTAL: {campaignProgress.totalScore.toLocaleString()}</span>
@@ -434,35 +437,37 @@ export default function App() {
                        <h4 className="text-4xl font-black italic uppercase tracking-tighter text-white/90">
                          Reached_Sector {Math.floor(campaignProgress.currentLevel / 4) + 1}-{(campaignProgress.currentLevel % 4) + 1}
                        </h4>
-                       <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                       <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden" role="progressbar" aria-label="Campaign Progress" aria-valuenow={campaignProgress.currentLevel + 1} aria-valuemin={1} aria-valuemax={10}>
                           <motion.div 
                             initial={{ width: 0 }}
                             animate={{ width: `${((campaignProgress.currentLevel + 1) / 10) * 100}%` }}
                             className="h-full bg-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.5)]"
                           />
                        </div>
-                    </div>
+                    </article>
                   )}
-                </div>
+                </section>
 
-                <div className="flex flex-col sm:flex-row gap-4">
+                <nav className="flex flex-col sm:flex-row gap-4" aria-label="End game actions">
                   <button 
                     onClick={handleStartGame}
+                    aria-label="Reboot Mission"
                     className="flex-1 py-6 bg-white text-black rounded-3xl font-black uppercase italic tracking-widest text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-white/10 flex items-center justify-center gap-3"
                   >
-                    <RefreshCw size={18} />
+                    <RefreshCw size={18} aria-hidden="true" />
                     REBOOT_MISSION
                   </button>
                   <button 
                     onClick={() => setMode('MENU')}
-                    className="flex-1 py-6 bg-white/5 hover:bg-white/10 border border-white/5 rounded-3xl font-black uppercase italic tracking-widest text-sm transition-all flex items-center justify-center gap-3"
+                    aria-label="Return to Base"
+                    className="flex-1 py-6 bg-white/5 hover:bg-white/10 border border-white/10 rounded-3xl font-black uppercase italic tracking-widest text-sm transition-all flex items-center justify-center gap-3"
                   >
-                    <Settings size={18} />
+                    <Settings size={18} aria-hidden="true" />
                     RETURN_TO_BASE
                   </button>
-                </div>
+                </nav>
                 
-                <div className="absolute top-12 left-12 opacity-5 pointer-events-none">
+                <div className="absolute top-12 left-12 opacity-5 pointer-events-none" aria-hidden="true">
                    <Star size={200} />
                 </div>
               </motion.div>
