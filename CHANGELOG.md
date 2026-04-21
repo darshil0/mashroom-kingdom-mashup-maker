@@ -13,6 +13,14 @@ All notable changes to the **Mushroom Kingdom Mashup Maker** will be documented 
 - **Character Logic**: Added auto-reset for ability cooldowns and invincibility status on character change.
 - **Tactile Feedback**: Added animated loading states and button disabling for the SYNC interface in `MainMenu.tsx`.
 - **Goomba Ledge Detection**: Fixed out-of-bounds array access in enemy patrol logic.
+- **UI Safety (No-Alert)**: Removed all synchronous `window.alert` calls, replacing them with a non-blocking, state-driven Status Message Overlay.
+- **Deserialization Resilience**: Added defensive dimensional and null-checks to the level sharing protocol to prevent crashes from malformed codes.
+
+#### Changed
+- **Touch Target Optimization**: Enforced a minimum 44px/54px touch target size for all interactive UI elements in the Header, Editor, and Main Menu.
+- **Identification Layer**: Injected comprehensive unique `id` attributes across all primary UI components for enhanced analytics and selection reliability.
+- **Tactical Nomenclature**: Updated `CAMPAIGN_THEMES` to use immersive "Mission Control" sector designations (e.g., SECTOR_01: GREEN_HILLS_STABILITY).
+- **Metadata Polish**: Refined the application description in `metadata.json` to better align with the engine's cinematic platforming theme.
 
 ### [1.7.4] - 2026-04-21
 
