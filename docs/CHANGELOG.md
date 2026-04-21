@@ -20,6 +20,10 @@ All notable changes to the **Mushroom Kingdom Mashup Maker** will be documented 
 - **Documentation Alignment**: Synchronized `README.md` and UI hints with actual control schemes (WASD + Space + X/Shift).
 - **Scanline Refinement**: Optimized scanline animation speed and opacity for better legibility.
 
+#### Removed
+- **Unused Utilities**: Deleted `math.ts` and associated imports to reduce package bloat.
+- **Dead State & Types**: Purged `lastGeneratedCode`, `LEVEL_SELECT`, and `unlocked` fields to streamline state management and type definitions.
+
 ### [1.7.5] - 2026-04-21
 
 #### Fixed
