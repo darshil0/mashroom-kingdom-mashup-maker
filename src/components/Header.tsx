@@ -27,21 +27,21 @@ export const Header: React.FC<HeaderProps> = ({ mode, coins, score, onExit }) =>
            <button 
             id="btn-terminal-exit"
             onClick={onExit}
-            className="px-5 py-2 bg-white/5 hover:bg-white/10 rounded-full text-[10px] font-black tracking-widest transition-all border border-white/10 flex items-center gap-2 group"
+            className="px-5 py-3 bg-white/5 hover:bg-white/10 rounded-full text-[10px] font-black tracking-widest transition-all border border-white/10 flex items-center gap-2 group min-h-[44px]"
            >
              <Settings size={12} className="group-hover:rotate-180 transition-transform duration-500" />
              TERMINAL_EXIT
            </button>
         )}
         <div id="stats-display" className="flex bg-white/5 rounded-full p-1 border border-white/10 divide-x divide-white/10 overflow-hidden shadow-inner">
-          <div className="px-5 py-2 flex items-center gap-2 hover:bg-white/5 transition-colors cursor-default group">
+          <div id="display-coins" className="px-5 py-2 flex items-center gap-2 hover:bg-white/5 transition-colors cursor-default group min-h-[44px]">
             <Coins size={14} className="text-yellow-400 group-hover:scale-125 transition-transform" />
             <div className="flex flex-col">
               <span className="text-[7px] font-black text-white/20 uppercase tracking-widest leading-none">Resources</span>
               <span className="text-xs font-black text-yellow-400 font-mono tracking-tighter">{coins.toString().padStart(3, '0')}</span>
             </div>
           </div>
-          <div className="px-5 py-2 flex items-center gap-2 hover:bg-white/5 transition-colors cursor-default group">
+          <div id="display-score" className="px-5 py-2 flex items-center gap-2 hover:bg-white/5 transition-colors cursor-default group min-h-[44px]">
             <Star size={14} className="text-blue-400 group-hover:rotate-45 transition-transform" />
             <div className="flex flex-col">
               <span className="text-[7px] font-black text-white/20 uppercase tracking-widest leading-none">Score_Link</span>

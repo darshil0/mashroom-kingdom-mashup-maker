@@ -33,7 +33,16 @@ export default function App() {
   const [shareCode, setShareCode] = useState("");
   const [lastGeneratedCode, setLastGeneratedCode] = useState(""); // For editor display
   const [campaignProgress, setCampaignProgress] = useState<CampaignProgress>({ currentLevel: 0, totalScore: 0, unlocked: 1 });
+  const [statusMessage, setStatusMessage] = useState<{ text: string, type: 'ALERT' | 'SUCCESS' | 'INFO' } | null>(null);
   const { controls } = useControls();
+
+  // Clear status after timeout
+  useEffect(() => {
+    if (statusMessage) {
+      const timer = setTimeout(() => setStatusMessage(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [statusMessage]);
 
   // Persistence: Load on mount
   useEffect(() => {
@@ -107,8 +116,9 @@ export default function App() {
     if (loaded) {
       setLevelData(loaded);
       handleStartGame();
+      setStatusMessage({ text: 'MISSION_DATA_SYNCED', type: 'SUCCESS' });
     } else {
-      alert("Invalid Level Code!");
+      setStatusMessage({ text: 'ERR_INVALID_CODE_LINK', type: 'ALERT' });
     }
   };
 
@@ -116,6 +126,7 @@ export default function App() {
     const code = serializeLevel(levelData);
     setShareCode(code);
     navigator.clipboard.writeText(code);
+    setStatusMessage({ text: 'SECTOR_DATA_COPIED', type: 'SUCCESS' });
   };
 
   const handleGenerateLevel = async () => {
@@ -139,6 +150,31 @@ export default function App() {
   return (
     <div className="min-h-screen text-white font-mono selection:bg-red-500 selection:text-white relative overflow-hidden">
       {/* Header handled by React components for dynamic state */}
+      {/* Status Overlay */}
+      <AnimatePresence>
+        {statusMessage && (
+          <motion.div
+            id="status-notification"
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="fixed bottom-12 right-12 z-[300] flex flex-col gap-2 pointer-events-none"
+          >
+             <div className={`px-6 py-3 rounded-2xl border backdrop-blur-xl flex items-center gap-4 ${
+               statusMessage.type === 'ALERT' ? 'bg-red-950/80 border-red-500/50 text-red-500' : 
+               statusMessage.type === 'SUCCESS' ? 'bg-green-950/80 border-green-500/50 text-green-500' : 
+               'bg-blue-950/80 border-blue-500/50 text-blue-500'
+             }`}>
+                <div className={`w-2 h-2 rounded-full animate-pulse ${
+                  statusMessage.type === 'ALERT' ? 'bg-red-500' : 
+                  statusMessage.type === 'SUCCESS' ? 'bg-green-500' : 'bg-blue-500'
+                }`} />
+                <span className="text-xs font-black uppercase tracking-widest">{statusMessage.text}</span>
+             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <Header 
         mode={mode} 
         coins={gameState.coins} 

@@ -1,6 +1,6 @@
 {
   "name": "Mushroom Kingdom Mashup Maker",
-  "description": "A React.js and TypeScript powered retro platformer and level editor featuring AI level generation and unique character abilities.",
+  "description": "A high-performance cinematic platforming engine featuring neural-link level generation and tactical hero abilities. Orchestrate sectors in the Level Editor or master the campaign sequence.",
   "requestFramePermissions": [],
   "majorCapabilities": []
 }

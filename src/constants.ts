@@ -88,14 +88,14 @@ export const DEFAULT_LEVEL: LevelData = {
 
 /** Campaign level themes, indexed by level number. */
 export const CAMPAIGN_THEMES = [
-  "green hills with sunny clouds",
-  "underground cavern with bricks and coins",
-  "snowy landscape with slippery spikes",
-  "lava castle with difficult jumps",
-  "sky world with floating platforms",
-  "forest world with dense tiles",
-  "desert oasis with quicksand-like pits",
-  "ghost house with pipes",
-  "industrial gear world",
-  "final boss fortress"
+  "SECTOR_01: GREEN_HILLS_STABILITY",
+  "SECTOR_02: UNDERGROUND_VAULT_DEEP_MAPPING",
+  "SECTOR_03: CRYOS_GLACIER_SLIPPERY_TERRAIN",
+  "SECTOR_04: IGNEOUS_LAVA_CHAMBER_HIGH_HEAT",
+  "SECTOR_05: STRATOS_SKY_NETWORK",
+  "SECTOR_06: VERDANT_FOREST_DENSITY_PROTOCOL",
+  "SECTOR_07: ARID_DESERT_SAND_STORM",
+  "SECTOR_08: PHANTOM_GHOST_LINK_VOIDS",
+  "SECTOR_09: INDUSTRIAL_GEAR_SYNTAX",
+  "SECTOR_10: FINAL_FORTRESS_SYSTEM_REBOOT"
 ];

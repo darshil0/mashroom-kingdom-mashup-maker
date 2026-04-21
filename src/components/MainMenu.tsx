@@ -150,6 +150,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                    <Settings size={14} />
                 </div>
                 <input 
+                  id="input-sync-code"
                   type="text"
                   value={shareCode}
                   onChange={(e) => setShareCode(e.target.value)}
@@ -158,6 +159,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                 />
              </div>
              <button 
+               id="btn-sync-submit"
                onClick={onSyncClick}
                disabled={isLoadingCode || !shareCode.trim()}
                className="px-10 py-4 bg-white text-black rounded-2xl font-black uppercase text-xs hover:bg-white/90 disabled:bg-white/20 disabled:text-white/30 transition-all flex items-center gap-2"
@@ -170,7 +172,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
       </div>
 
       <div className="lg:col-span-5">
-        <div className="glass-panel tech-border rounded-[48px] p-8 space-y-8 h-full flex flex-col">
+        <div id="ai-forge-panel" className="glass-panel tech-border rounded-[48px] p-8 space-y-8 h-full flex flex-col">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-3 bg-blue-600/20 rounded-2xl">
@@ -181,7 +183,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                 <p className="text-[9px] font-black text-blue-500 uppercase tracking-widest mt-1">Prompted Construction</p>
               </div>
             </div>
-            <div className="text-[9px] font-black text-white/20 uppercase tracking-widest bg-white/5 px-3 py-1 rounded-full">
+            <div id="ai-model-badge" className="text-[9px] font-black text-white/20 uppercase tracking-widest bg-white/5 px-3 py-1 rounded-full">
                GMNI_MODEL_R3
             </div>
           </div>
@@ -189,6 +191,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
           <div className="flex-1 space-y-4">
              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] block">Design Specification</label>
              <textarea 
+                id="input-ai-prompt"
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 placeholder="DEFINE ARCHITECTURE... e.g. 'A deep sea cavern with golden pipes and spikes'"
@@ -197,6 +200,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
           </div>
 
           <button 
+            id="btn-generate-world"
             onClick={handleGenerateLevel}
             disabled={isGenerating}
             className="w-full py-5 bg-blue-600 hover:bg-blue-500 disabled:bg-white/5 disabled:text-white/20 disabled:cursor-not-allowed rounded-3xl flex items-center justify-center gap-4 font-black uppercase italic transition-all shadow-[0_20px_40px_rgba(37,99,235,0.2)]"

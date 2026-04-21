@@ -19,18 +19,20 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex bg-white/5 rounded-2xl p-1 border border-white/10 overflow-hidden shadow-inner">
+      <div id="editor-tool-selector" className="flex bg-white/5 rounded-2xl p-1 border border-white/10 overflow-hidden shadow-inner">
         <button
+          id="btn-tool-tile"
           onClick={() => onToolChange('TILE')}
-          className={`flex-1 px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+          className={`flex-1 px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all min-h-[44px] ${
             tool === 'TILE' ? 'bg-white/10 text-white shadow-lg' : 'text-white/30 hover:text-white/60'
           }`}
         >
           Tiles
         </button>
         <button
+          id="btn-tool-entity"
           onClick={() => onToolChange('ENTITY')}
-          className={`flex-1 px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+          className={`flex-1 px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all min-h-[44px] ${
             tool === 'ENTITY' ? 'bg-white/10 text-white shadow-lg' : 'text-white/30 hover:text-white/60'
           }`}
         >
@@ -38,13 +40,14 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
         </button>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
+      <div id="editor-asset-grid" className="grid grid-cols-3 gap-3">
         {tool === 'TILE' ? (
           TILE_LIST.map(t => (
             <button
+              id={`btn-select-tile-${t.toLowerCase()}`}
               key={t}
               onClick={() => onTileSelect(t)}
-              className={`w-full aspect-square rounded-2xl border-2 transition-all flex items-center justify-center group relative overflow-hidden ${
+              className={`w-full aspect-square rounded-2xl border-2 transition-all flex items-center justify-center group relative overflow-hidden min-h-[54px] ${
                 selectedTile === t ? 'border-white bg-white/10 shadow-lg scale-105 z-10' : 'border-white/5 bg-white/5 hover:border-white/20'
               }`}
             >
@@ -58,9 +61,10 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
         ) : (
           ENTITY_LIST.map(e => (
             <button
+              id={`btn-select-entity-${e.toLowerCase()}`}
               key={e}
               onClick={() => onEntitySelect(e)}
-              className={`w-full aspect-square rounded-2xl border-2 transition-all flex items-center justify-center group relative overflow-hidden ${
+              className={`w-full aspect-square rounded-2xl border-2 transition-all flex items-center justify-center group relative overflow-hidden min-h-[54px] ${
                 selectedEntity === e ? 'border-white bg-white/10 shadow-lg scale-105 z-10' : 'border-white/5 bg-white/5 hover:border-white/20'
               }`}
             >

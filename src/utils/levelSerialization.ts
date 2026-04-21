@@ -55,11 +55,16 @@ export function serializeLevel(level: LevelData): string {
 export function deserializeLevel(code: string): LevelData | null {
   try {
     const raw = atob(code);
-    const [dims, tilesPart, entitiesPart] = raw.split(':');
+    const parts = raw.split(':');
+    if (parts.length < 2) return null;
+    const [dims, tilesPart, entitiesPart] = parts;
     const [width, height] = dims.split('x').map(Number);
+    
+    if (!width || !height || !tilesPart) return null;
     
     // Parse tiles
     const rows = tilesPart.split('|');
+    if (rows.length === 0) return null;
     const tiles: TileType[][] = rows.map(row => 
       row.split('').map(char => REV_TILE_MAP[char] || 'EMPTY')
     );
