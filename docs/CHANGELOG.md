@@ -9,24 +9,6 @@ All notable changes to the **Mushroom Kingdom Mashup Maker** will be documented 
 - **Enhanced Physics Link**: Improved Luigi's Ghost Dash to prevent wall clipping while maintaining phasing capabilities.
 - **Safe Spawn Protocol**: Refined entity spawning logic to prevent internal collision on generation.
 - **Environmental Persistence**: Injected `dotenv` configuration in the server kernel to ensure API key availability across all environments.
-
-#### Added
-- **Visual Grid Overlay**: Implemented a 32px technical grid background across the entire platform as per Mission Control specifications.
-- **Block Interaction Update**: Introduced `SPENT` tile state for `QUESTION` blocks to provide immediate visual feedback after resource extraction.
-- **Control System Expansion**: Added full `WASD` support to align with modern platforming standards.
-- **Advanced Aesthetics**: Enhanced tile rendering with technical borders, accent corners, and upgraded `backdrop-blur-xl` glassmorphism.
-
-#### Changed
-- **Documentation Alignment**: Synchronized `README.md` and UI hints with actual control schemes (WASD + Space + X/Shift).
-- **Scanline Refinement**: Optimized scanline animation speed and opacity for better legibility.
-
-#### Removed
-- **Unused Utilities**: Deleted `math.ts` and associated imports to reduce package bloat.
-- **Dead State & Types**: Purged `lastGeneratedCode`, `LEVEL_SELECT`, and `unlocked` fields to streamline state management and type definitions.
-
-### [1.8.0] - 2026-04-21
-
-#### Fixed
 - **Campaign Persistence**: Integrated `localStorage` to preserve world progress, total scores, and unlocks.
 - **Viewport Culling**: Implemented dynamic tile and entity culling in `GameCanvas.tsx` for enhanced rendering performance.
 - **AI Stability Patch**: Added exponential backoff retry logic and request timeouts to `geminiService.ts`.
@@ -38,11 +20,23 @@ All notable changes to the **Mushroom Kingdom Mashup Maker** will be documented 
 - **UI Safety (No-Alert)**: Removed all synchronous `window.alert` calls, replacing them with a non-blocking, state-driven Status Message Overlay.
 - **Deserialization Resilience**: Added defensive dimensional and null-checks to the level sharing protocol to prevent crashes from malformed codes.
 
+#### Added
+- **Visual Grid Overlay**: Implemented a 32px technical grid background across the entire platform as per Mission Control specifications.
+- **Block Interaction Update**: Introduced `SPENT` tile state for `QUESTION` blocks to provide immediate visual feedback after resource extraction.
+- **Control System Expansion**: Added full `WASD` support to align with modern platforming standards.
+- **Advanced Aesthetics**: Enhanced tile rendering with technical borders, accent corners, and upgraded `backdrop-blur-xl` glassmorphism.
+
 #### Changed
+- **Documentation Alignment**: Synchronized `README.md` and UI hints with actual control schemes (WASD + Space + X/Shift).
+- **Scanline Refinement**: Optimized scanline animation speed and opacity for better legibility.
 - **Touch Target Optimization**: Enforced a minimum 44px/54px touch target size for all interactive UI elements in the Header, Editor, and Main Menu.
 - **Identification Layer**: Injected comprehensive unique `id` attributes across all primary UI components for enhanced analytics and selection reliability.
 - **Tactical Nomenclature**: Updated `CAMPAIGN_THEMES` to use immersive "Mission Control" sector designations (e.g., SECTOR_01: GREEN_HILLS_STABILITY).
 - **Metadata Polish**: Refined the application description in `metadata.json` to better align with the engine's cinematic platforming theme.
+
+#### Removed
+- **Unused Utilities**: Deleted `math.ts` and associated imports to reduce package bloat.
+- **Dead State & Types**: Purged `lastGeneratedCode`, `LEVEL_SELECT`, and `unlocked` fields to streamline state management and type definitions.
 
 ### [1.7.4] - 2026-04-21
 
