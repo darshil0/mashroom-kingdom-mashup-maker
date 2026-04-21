@@ -19,4 +19,4 @@ You are a Lead Game Architect and Lead Product Designer. You prioritize high-per
 
 ## Naming Conventions
 - In-game messages should use uppercase "System Log" style: `INITIATING_SEQUENCE`, `MISSION_COMPLETE`.
-- Variables should be descriptive and typed according to `src/types.ts`.
+- Variables should be descriptive and typed according to `src/core/types.ts`.

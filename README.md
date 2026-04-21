@@ -9,6 +9,7 @@ A retro-inspired platformer and level editor enriched with AI level generation. 
 - **Advanced Cinematic Effects**: Integrated global noise-texture overlays and CSS-driven chromatic aberration glitch effects for high-intensity mission states.
 - **Hybrid Architecture (50% HTML)**: Optimized for performance by blending React logic with high-speed semantic HTML structures.
 - **Multiple Characters**: Play as Mario, Luigi, Toad, or Peach, each with unique stats and special abilities.
+- **Modular Architecture**: Optimized file structure with specialized subdirectories (`core`, `editor`, `game`, `layout`) for elite maintainability.
 - **Comprehensive Editor**: A grid-based tile and entity editor for handcrafting levels with instant shareable link generation.
 - **Campaign Mode**: Progress through 10 AI-generated sectors with increasing difficulty and unique environmental themes.
 
