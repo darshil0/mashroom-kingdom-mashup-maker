@@ -4,16 +4,16 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { GameMode, CharacterType, LevelData, GameState, CampaignProgress } from './types';
-import { CHARACTERS, DEFAULT_LEVEL, CAMPAIGN_THEMES } from './constants';
+import { GameMode, CharacterType, LevelData, GameState, CampaignProgress } from './core/types';
+import { CHARACTERS, DEFAULT_LEVEL, CAMPAIGN_THEMES } from './core/constants';
 import { useControls } from './hooks/useControls';
-import { GameCanvas } from './components/GameCanvas';
-import { Header } from './components/Header';
-import { Footer } from './components/Footer';
-import { LoadingOverlay } from './components/LoadingOverlay';
-import { AbilityOverlay } from './components/AbilityOverlay';
-import { Editor } from './components/Editor';
-import { MainMenu } from './components/MainMenu';
+import { GameCanvas } from './components/game/GameCanvas';
+import { Header } from './components/layout/Header';
+import { Footer } from './components/layout/Footer';
+import { LoadingOverlay } from './components/common/LoadingOverlay';
+import { AbilityOverlay } from './components/game/AbilityOverlay';
+import { Editor } from './components/editor/Editor';
+import { MainMenu } from './components/menu/MainMenu';
 import { generateLevel } from './services/geminiService';
 import { serializeLevel, deserializeLevel } from './utils/levelSerialization';
 import { motion, AnimatePresence } from 'motion/react';

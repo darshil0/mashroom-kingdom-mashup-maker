@@ -4,10 +4,10 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { LevelData, TileType, EntityType } from '../types';
-import { TILE_SIZE, COLORS } from '../constants';
+import { LevelData, TileType, EntityType } from '../../core/types';
+import { TILE_SIZE, COLORS } from '../../core/constants';
 import { EditorToolbar } from './EditorToolbar';
-import { serializeLevel } from '../utils/levelSerialization';
+import { serializeLevel } from '../../utils/levelSerialization';
 import { motion } from 'motion/react';
 import { Wand2, Hammer, Check, AlertCircle } from 'lucide-react';
 

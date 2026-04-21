@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { TILE_SIZE } from '../constants';
-import { TileType, Vector2D } from '../types';
+import { TILE_SIZE } from '../core/constants';
+import { TileType, Vector2D } from '../core/types';
 
 export interface CollisionResult {
   collision: boolean;

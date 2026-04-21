@@ -4,8 +4,8 @@ import {
   Play, Edit2, Wand2, RefreshCw, Trophy, 
   AlertCircle, User, Settings, Check 
 } from 'lucide-react';
-import { CharacterType, GameMode } from '../types';
-import { CHARACTERS } from '../constants';
+import { CharacterType, GameMode } from '../../core/types';
+import { CHARACTERS } from '../../core/constants';
 
 interface MainMenuProps {
   character: CharacterType;

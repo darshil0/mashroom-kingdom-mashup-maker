@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { LevelData, TileType, EntityType } from '../types';
+import { LevelData, TileType, EntityType } from '../core/types';
 
 // Simple mapping for compression
 const TILE_MAP: Record<string, string> = {

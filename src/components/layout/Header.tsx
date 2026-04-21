@@ -1,6 +1,6 @@
 import React from 'react';
 import { Star, Settings, Coins } from 'lucide-react';
-import { GameMode } from '../types';
+import { GameMode } from '../../core/types';
 
 interface HeaderProps {
   mode: GameMode;

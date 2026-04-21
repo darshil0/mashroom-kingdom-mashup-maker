@@ -1,6 +1,6 @@
 import React from 'react';
-import { TileType, EntityType } from '../types';
-import { COLORS } from '../constants';
+import { TileType, EntityType } from '../../core/types';
+import { COLORS } from '../../core/constants';
 
 interface EditorToolbarProps {
   tool: 'TILE' | 'ENTITY';

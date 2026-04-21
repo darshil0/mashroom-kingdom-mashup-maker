@@ -7,10 +7,10 @@ import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { 
   LevelData, TileType, EntityType, GameMode, CharacterType, 
   Player, Entity, Vector2D, GameState 
-} from '../types';
-import { TILE_SIZE, GRAVITY, FRICTION, CHARACTERS, COLORS } from '../constants';
-import { checkTileCollision, isRectOverlap } from '../utils/physics';
-import { Controls } from '../hooks/useControls';
+} from '../../core/types';
+import { TILE_SIZE, GRAVITY, FRICTION, CHARACTERS, COLORS } from '../../core/constants';
+import { checkTileCollision, isRectOverlap } from '../../utils/physics';
+import { Controls } from '../../hooks/useControls';
 
 interface GameCanvasProps {
   levelData: LevelData;

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { TileType, EntityType } from "../types";
+import { TileType, EntityType } from "../core/types";
 
 export async function generateLevel(
   prompt: string, 
