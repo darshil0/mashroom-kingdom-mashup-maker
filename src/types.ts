@@ -8,6 +8,7 @@ export type TileType =
   | 'GROUND' 
   | 'BRICK' 
   | 'QUESTION' 
+  | 'SPENT'
   | 'PIPE_TOP_LEFT' 
   | 'PIPE_TOP_RIGHT' 
   | 'PIPE_BODY_LEFT' 

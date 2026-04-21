@@ -499,7 +499,7 @@ const Editor: React.FC<EditorProps> = ({ initialLevel, onSave, onShare }) => {
   const [currentCode, setCurrentCode] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const TILE_LIST: TileType[] = ['GROUND', 'BRICK', 'QUESTION', 'SPIKE', 'PIPE_TOP_LEFT', 'GOAL_TOP'];
+  const TILE_LIST: TileType[] = ['GROUND', 'BRICK', 'QUESTION', 'SPENT', 'SPIKE', 'PIPE_TOP_LEFT', 'GOAL_TOP'];
   const ENTITY_LIST: EntityType[] = ['GOOMBA', 'COIN', 'MUSHROOM'];
 
   useEffect(() => {

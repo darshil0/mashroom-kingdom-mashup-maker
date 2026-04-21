@@ -215,8 +215,8 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
          e.vel.y += GRAVITY;
          e.pos.y += e.vel.y;
          c = checkTileCollision(e.pos, e.width, e.height, tiles);
-         if (c.collision) {
-           e.pos.y = c.y! * TILE_SIZE - e.height;
+         if (c.collision && c.y !== undefined) {
+           e.pos.y = c.y * TILE_SIZE - e.height;
            e.vel.y = 0;
          }
       }
@@ -258,7 +258,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       stateRef.current.tiles[y][x] = 'EMPTY';
       setTiles([...stateRef.current.tiles]);
     } else if (tile === 'QUESTION') {
-      stateRef.current.tiles[y][x] = 'EMPTY'; // Or a 'spent' block
+      stateRef.current.tiles[y][x] = 'SPENT';
       setTiles([...stateRef.current.tiles]);
       // Spawn Mushroom
       stateRef.current.entities.push({
@@ -272,7 +272,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         isDead: false,
         direction: 1,
       });
-    } else if (tile === 'GOAL_TOP' || tile === 'GOAL_BODY') {
+    } else if (tile && tile.startsWith('GOAL')) {
        if (!stateRef.current.isFinished) {
          stateRef.current.isFinished = true;
          onWin();
@@ -329,7 +329,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       player.invincibilityTime = 60;
       // Dash with collision check
       const dashDistance = 120;
-      const steps = 10;
+      const steps = 15;
       for (let i = 0; i < steps; i++) {
         const nextX = player.pos.x + (player.direction * (dashDistance / steps));
         const testPos = { ...player.pos, x: nextX };
@@ -337,7 +337,9 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         if (!col.collision) {
           player.pos.x = nextX;
         } else {
-          break; // Stop at wall
+          // If we hit something, stop and maybe move back slightly to avoid sticking
+          player.pos.x = player.direction > 0 ? col.x! * TILE_SIZE - player.width - 1 : (col.x! + 1) * TILE_SIZE + 1;
+          break;
         }
       }
       break;
@@ -393,9 +395,20 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         if (tile.startsWith('PIPE')) ctx.fillStyle = COLORS.PIPE;
         if (tile.startsWith('GOAL')) ctx.fillStyle = COLORS.GOAL;
         
-        ctx.fillRect(tileX, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-        ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+        // Technical styling
+        ctx.fillRect(tileX + 1, y * TILE_SIZE + 1, TILE_SIZE - 2, TILE_SIZE - 2);
+        
+        // Borders
+        ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+        ctx.lineWidth = 1;
         ctx.strokeRect(tileX, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+
+        // Accent corners for solid blocks
+        if (tile === 'GROUND' || tile === 'BRICK' || tile === 'SPENT') {
+          ctx.fillStyle = 'rgba(255,255,255,0.2)';
+          ctx.fillRect(tileX, y * TILE_SIZE, 4, 1);
+          ctx.fillRect(tileX, y * TILE_SIZE, 1, 4);
+        }
       });
     });
 

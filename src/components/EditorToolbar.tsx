@@ -14,7 +14,7 @@ interface EditorToolbarProps {
 export const EditorToolbar: React.FC<EditorToolbarProps> = ({ 
   tool, selectedTile, selectedEntity, onToolChange, onTileSelect, onEntitySelect 
 }) => {
-  const TILE_LIST: TileType[] = ['GROUND', 'BRICK', 'QUESTION', 'SPIKE', 'PIPE_TOP_LEFT', 'GOAL_TOP'];
+  const TILE_LIST: TileType[] = ['GROUND', 'BRICK', 'QUESTION', 'SPENT', 'SPIKE', 'PIPE_TOP_LEFT', 'GOAL_TOP'];
   const ENTITY_LIST: EntityType[] = ['GOOMBA', 'COIN', 'MUSHROOM'];
 
   return (

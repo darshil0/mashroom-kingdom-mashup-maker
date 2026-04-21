@@ -2,6 +2,24 @@
 
 All notable changes to the **Mushroom Kingdom Mashup Maker** will be documented in this file.
 
+### [1.8.0] - 2026-04-21
+
+#### Fixed
+- **Server AI SDK Refactor**: Fixed incorrect usage of `@google/genai` SDK in `server.ts`. Corrected method calls and response parsing for `gemini-3-flash-preview`.
+- **Enhanced Physics Link**: Improved Luigi's Ghost Dash to prevent wall clipping while maintaining phasing capabilities.
+- **Safe Spawn Protocol**: Refined entity spawning logic to prevent internal collision on generation.
+- **Environmental Persistence**: Injected `dotenv` configuration in the server kernel to ensure API key availability across all environments.
+
+#### Added
+- **Visual Grid Overlay**: Implemented a 32px technical grid background across the entire platform as per Mission Control specifications.
+- **Block Interaction Update**: Introduced `SPENT` tile state for `QUESTION` blocks to provide immediate visual feedback after resource extraction.
+- **Control System Expansion**: Added full `WASD` support to align with modern platforming standards.
+- **Advanced Aesthetics**: Enhanced tile rendering with technical borders, accent corners, and upgraded `backdrop-blur-xl` glassmorphism.
+
+#### Changed
+- **Documentation Alignment**: Synchronized `README.md` and UI hints with actual control schemes (WASD + Space + X/Shift).
+- **Scanline Refinement**: Optimized scanline animation speed and opacity for better legibility.
+
 ### [1.7.5] - 2026-04-21
 
 #### Fixed

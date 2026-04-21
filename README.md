@@ -65,10 +65,19 @@ A retro-inspired platformer and level editor enriched with AI level generation. 
 
 ## 🎮 How to Play
 
-- **Arrow Keys**: Move and Jump (Jump height is variable based on hold duration)
-- **Space Bar**: Character Special Ability
+- **WASD / Arrow Keys**: Movement (Left/Right/Up/Down)
+- **Space Bar**: Jump
+- **X / Shift / P**: Special Ability (Unique per character)
 - **Menu**: Select your character and mode (Quick Play, Campaign, or Editor).
-- **Sharing**: In the editor, use the "Share Level" button to get a code. Paste codes in the main menu to load external levels.
+- **Sharing**: In the editor, use the "GEN_SHARE_ID" button to get a code. Sync codes in the main menu to load external sectors.
+
+## 📜 Sector Mapping Protocols
+
+The engine follows strict coordinate mapping for sector generation:
+- **Grid Scale**: 32px standard tiles
+- **Height Constraints**: Exactly 15 tiles
+- **Start Vector**: (2, 10)
+- **Extraction Point**: Far right edge (GOAL)
 
 ## 📜 License
 

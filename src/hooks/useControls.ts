@@ -28,9 +28,11 @@ export function useControls() {
     const handleKeyDown = (e: KeyboardEvent) => {
       switch (e.key.toLowerCase()) {
         case 'arrowleft':
+        case 'a':
           setControls((c) => ({ ...c, left: true }));
           break;
         case 'arrowright':
+        case 'd':
           setControls((c) => ({ ...c, right: true }));
           break;
         case 'arrowup':
@@ -46,6 +48,7 @@ export function useControls() {
           break;
         case 'p':
         case 'x':
+        case 'shift':
           setControls((c) => ({ ...c, ability: true }));
           break;
       }
@@ -54,9 +57,11 @@ export function useControls() {
     const handleKeyUp = (e: KeyboardEvent) => {
       switch (e.key.toLowerCase()) {
         case 'arrowleft':
+        case 'a':
           setControls((c) => ({ ...c, left: false }));
           break;
         case 'arrowright':
+        case 'd':
           setControls((c) => ({ ...c, right: false }));
           break;
         case 'arrowup':
@@ -72,6 +77,7 @@ export function useControls() {
           break;
         case 'p':
         case 'x':
+        case 'shift':
           setControls((c) => ({ ...c, ability: false }));
           break;
       }

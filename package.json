@@ -1,7 +1,7 @@
 {
   "name": "mushroom-kingdom-mashup-maker",
   "private": true,
-  "version": "1.7.5",
+  "version": "1.8.0",
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
