@@ -1,41 +1,35 @@
-# 🍄 Mushroom Kingdom Mashup Maker (v1.7.5)
+# 🍄 Mushroom Kingdom Mashup Maker (v1.8.0)
 
 A retro-inspired platformer and level editor enriched with AI level generation. Build, play, and share your own Mushroom Kingdom adventures.
 
 ## 🌟 Features
 
-- **AI Level Generation**: Powered by the latest Gemini generative models. Generate infinite, customized levels using natural language prompts.
-- **Modern Technical Dashboard**: A cinematic "Mission Control" UI featuring scanlines, glassmorphism, and animated tech-borders.
-- **Hybrid Architecture (50% HTML)**: Optimized for performance and accessibility by blending React logic with high-speed semantic HTML structures.
-- **Modular Component Design**: Clean separation of concerns with dedicated components for Header, Footer, MainMenu, Editor, and HUD.
-- **AI Forge Error Mitigation**: Real-time error status tracking and technical alerts for generative failures.
-- **Extensive Technical Library**: Integrated on-board documentation covering lore, technical specifications, API references, and sector mapping logs (42 files total).
+- **AI Level Generation**: Powered by the `gemini-3-flash-preview` model. Generate infinite, customized levels using natural language prompts.
+- **Modern Technical Dashboard**: A cinematic "Mission Control" UI featuring scanlines, glassmorphism, 32px background grids, and animated tech-borders.
+- **Hybrid Architecture (50% HTML)**: Optimized for performance by blending React logic with high-speed semantic HTML structures.
 - **Multiple Characters**: Play as Mario, Luigi, Toad, or Peach, each with unique stats and special abilities.
-  - **Mario**: Fire Cyclone (Spin attack)
-  - **Luigi**: Ghost Dash (Phase through walls/enemies)
-  - **Toad**: Super Sprout (Climbable vines)
-  - **Peach**: Crystal Barrier (Defensive shield)
-- **Comprehensive Editor**: A grid-based tile and entity editor for handcrafting levels.
-- **Level Sharing**: Serialize your levels into compact codes to share with friends. Load and play shared levels instantly.
-- **Campaign Mode**: Progress through a sequence of 10 AI-generated levels with increasing difficulty and thematic progression.
-- **Enhanced Physics & Collision**: Tile-based collisions, momentum-driven movement, and reactive entity AI (Goombas, Coins, Mushrooms).
-- **Retro Aesthetic**: Visuals and UI inspired by classic 8-bit and 16-bit platformers, built with Tailwind CSS and motion.
+- **Comprehensive Editor**: A grid-based tile and entity editor for handcrafting levels with instant shareable link generation.
+- **Campaign Mode**: Progress through 10 AI-generated sectors with increasing difficulty and unique environmental themes.
 
-## 🛠️ Tech Stack
+## 📊 Unit Specifications
 
-- **Framework**: React.js with TypeScript
-- **Bundler**: Vite
-- **Architecture**: Hybrid React / Semantic HTML5 (50% Distribution)
-- **Styling**: Tailwind CSS
-- **Animations**: Motion (framer-motion)
-- **Icons**: Lucide React
-- **AI Engine**: Google Gemini API (@google/genai)
-- **Rendering**: HTML5 Canvas API
+| Unit | Speed | Jump | Special Ability | Cooldown |
+| :--- | :--- | :--- | :--- | :--- |
+| **MARIO** | 4.0 | 12.0 | Fire Cyclone (Spin) | 300f |
+| **LUIGI** | 3.5 | 14.5 | Ghost Dash (Phase) | 400f |
+| **TOAD** | 5.5 | 10.0 | Super Sprout (Boost) | 250f |
+| **PEACH** | 3.8 | 11.0 | Crystal Barrier (Shield) | 500f |
+
+## 🛠️ AI Forge Prompting
+
+To get the most out of the Gemini AI Forge, use descriptive architectural prompts:
+- *"A lava-filled castle with floating brick platforms and high Goomba density."*
+- *"A peaceful forest with many pipes and hidden coin clusters."*
+- *"A treacherous sky bridge with narrow platforms and spikes."*
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-
 - Node.js (v18 or higher)
 - A Google Gemini API Key
 
@@ -43,22 +37,18 @@ A retro-inspired platformer and level editor enriched with AI level generation. 
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/mushroom-kingdom-mashup-maker.git
-   cd mushroom-kingdom-mashup-maker
+   git clone https://github.com/darshil0/mashroom-kingdom-mashup-maker.git
+   cd mashroom-kingdom-mashup-maker
    ```
-
 2. Install dependencies:
    ```bash
    npm install
    ```
-
-3. Set up environment variables:
-   Create a `.env` file in the root directory and add your Gemini API key:
+3. Set up environment variables in a `.env` file:
    ```env
    GEMINI_API_KEY=your_api_key_here
    ```
-
-4. Start the development server:
+4. Start the engine:
    ```bash
    npm run dev
    ```
@@ -68,8 +58,7 @@ A retro-inspired platformer and level editor enriched with AI level generation. 
 - **WASD / Arrow Keys**: Movement (Left/Right/Up/Down)
 - **Space Bar**: Jump
 - **X / Shift / P**: Special Ability (Unique per character)
-- **Menu**: Select your character and mode (Quick Play, Campaign, or Editor).
-- **Sharing**: In the editor, use the "GEN_SHARE_ID" button to get a code. Sync codes in the main menu to load external sectors.
+- **Sharing**: Use "GEN_SHARE_ID" in the Editor and "SYNC" in the Main Menu.
 
 ## 📜 Sector Mapping Protocols
 
@@ -78,6 +67,7 @@ The engine follows strict coordinate mapping for sector generation:
 - **Height Constraints**: Exactly 15 tiles
 - **Start Vector**: (2, 10)
 - **Extraction Point**: Far right edge (GOAL)
+- **Tile Glossary**: GROUND, BRICK, QUESTION, SPENT, SPIKE, PIPE, GOAL
 
 ## 📜 License
 
