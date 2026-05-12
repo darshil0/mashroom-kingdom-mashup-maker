@@ -1,4 +1,4 @@
-# 🍄 Mushroom Kingdom Mashup Maker (v1.8.0)
+# 🍄 Mushroom Kingdom Mashup Maker (v1.8.1)
 
 A retro-inspired platformer and level editor enriched with AI level generation. Build, play, and share your own Mushroom Kingdom adventures.
 
