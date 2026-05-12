@@ -21,6 +21,14 @@ interface GameCanvasProps {
   onGameOver: () => void;
 }
 
+interface GameStateRef {
+  player: Player;
+  entities: Entity[];
+  tiles: TileType[][];
+  levelData: LevelData;
+  isFinished: boolean;
+}
+
 export const GameCanvas: React.FC<GameCanvasProps> = ({
   levelData,
   character,
@@ -52,7 +60,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   const [tiles, setTiles] = useState<TileType[][]>([]);
   const [camera, setCamera] = useState<number>(0);
 
-  // Issue 10: Reset player state when character changes
+  // Fix Issue 10: Reset player state when character changes
   useEffect(() => {
     setPlayer(prev => ({
       ...prev,
@@ -63,7 +71,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   }, [character]);
   
   // Ref for mutable state to use in game loop
-  const stateRef = useRef({
+  const stateRef = useRef<GameStateRef>({
     player,
     entities: [] as Entity[],
     tiles: [] as TileType[][],
@@ -75,7 +83,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     stateRef.current.tiles = JSON.parse(JSON.stringify(levelData.tiles));
     stateRef.current.entities = levelData.entities.map((e, index) => ({
       id: `entity-${index}`,
-      type: e.type,
+      type: e.type as EntityType,
       pos: { x: e.x * TILE_SIZE, y: e.y * TILE_SIZE },
       vel: { x: e.type === 'GOOMBA' ? -1.5 : 0, y: 0 },
       width: TILE_SIZE - 4,
@@ -84,12 +92,20 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       isDead: false,
       direction: -1,
     }));
+    stateRef.current.isFinished = false;
     setTiles(stateRef.current.tiles);
     setEntities(stateRef.current.entities);
   }, [levelData]);
 
   const update = useCallback((ctrl: Controls) => {
-    const { player, entities, tiles } = stateRef.current;
+    const state = stateRef.current;
+    
+    // Null safety check
+    if (!state || !state.player || !state.tiles || state.tiles.length === 0) {
+      return;
+    }
+
+    const { player, entities, tiles } = state;
     if (player.isDead) return;
 
     // --- Player Physics ---
@@ -121,8 +137,8 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     let collision = checkTileCollision(player.pos, player.width, player.height, tiles);
     if (collision.collision && collision.x !== undefined) {
       if (collision.type && collision.type.startsWith('GOAL')) {
-        if (!stateRef.current.isFinished) {
-          stateRef.current.isFinished = true;
+        if (!state.isFinished) {
+          state.isFinished = true;
           onWin();
         }
       } else {
@@ -137,8 +153,8 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     collision = checkTileCollision(player.pos, player.width, player.height, tiles);
     if (collision.collision && collision.y !== undefined && collision.x !== undefined) {
       if (collision.type && collision.type.startsWith('GOAL')) {
-        if (!stateRef.current.isFinished) {
-          stateRef.current.isFinished = true;
+        if (!state.isFinished) {
+          state.isFinished = true;
           onWin();
         }
       } else {
@@ -150,17 +166,16 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
           player.pos.y = (collision.y + 1) * TILE_SIZE;
           player.vel.y = 0;
           // Hit block from below
-          handleBlockHit(collision.x, collision.y);
+          handleBlockHit(state, collision.x, collision.y);
         }
       }
-    }
- else {
+    } else {
       player.isGrounded = false;
     }
 
     // Ability
     if (ctrl.ability && player.abilityCooldown <= 0) {
-      handleAbility(player, entities);
+      handleAbility(player, entities, tiles);
       player.abilityCooldown = charStats.abilityCooldown;
     }
     if (player.abilityCooldown > 0) player.abilityCooldown--;
@@ -169,15 +184,16 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     // Out of bounds
     if (player.pos.y > tiles.length * TILE_SIZE) {
       player.isDead = true;
-      if (!stateRef.current.isFinished) {
-        stateRef.current.isFinished = true;
+      if (!state.isFinished) {
+        state.isFinished = true;
         onGameOver();
       }
     }
 
     // --- Entities Physics ---
-    for (const e of entities) {
-      if (e.isDead) continue;
+    for (let i = 0; i < entities.length; i++) {
+      const e = entities[i];
+      if (!e || e.isDead) continue;
       
       if (e.type === 'GOOMBA') {
         const nextX = e.pos.x + e.vel.x;
@@ -185,9 +201,9 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         const tileX = Math.floor(checkX / TILE_SIZE);
         const tileY = Math.floor((e.pos.y + e.height + 2) / TILE_SIZE);
         
-        // Ledge detection
+        // Ledge detection with bounds check
         let isLedge = false;
-        if (tileY >= 0 && tileY < tiles.length && tileX >= 0 && tileX < tiles[0].length) {
+        if (tileY >= 0 && tileY < tiles.length && tileX >= 0 && tileX < tiles[tileY].length) {
           if (tiles[tileY][tileX] === 'EMPTY') {
             isLedge = true;
           }
@@ -226,42 +242,42 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         { x: player.pos.x, y: player.pos.y, w: player.width, h: player.height },
         { x: e.pos.x, y: e.pos.y, w: e.width, h: e.height }
       )) {
-        handleEntityInteraction(e);
+        handleEntityInteraction(state, e);
       }
     }
 
-    // Camera
+    // Camera with threat awareness
     const nearbyGoombas = entities.filter(e => 
-      e.type === 'GOOMBA' && 
+      e && e.type === 'GOOMBA' && 
       !e.isDead && 
       Math.abs(e.pos.x - player.pos.x) < 400
     );
 
     let focusX = player.pos.x;
     if (nearbyGoombas.length > 0) {
-      // Create a weighted focus between player and nearby threats
-      const avgGoombaX = nearbyGoombas.reduce((acc, g) => acc + g.pos.x, 0) / nearbyGoombas.length;
-      focusX = (player.pos.x * 0.7 + avgGoombaX * 0.3); // Heavily weight player, but lean toward threats
+      // Weighted focus between player and nearby threats
+      const avgGoombaX = nearbyGoombas.reduce((acc, g) => acc + (g?.pos.x || 0), 0) / nearbyGoombas.length;
+      focusX = (player.pos.x * 0.7 + avgGoombaX * 0.3);
     }
 
     const targetCam = Math.max(0, focusX - 400); 
-    setCamera((prev) => prev + (targetCam - prev) * 0.08); // Slightly slower smoothing for group follow
+    setCamera((prev) => prev + (targetCam - prev) * 0.08);
     
     setPlayer({ ...player });
     setEntities([...entities]);
     onStateChange({ player, coins: player.coins, score: player.score });
   }, [onGameOver, onWin, onStateChange]);
 
-  const handleBlockHit = (x: number, y: number) => {
-    const tile = stateRef.current.tiles[y][x];
-    if (tile === 'BRICK' && stateRef.current.player.isBig) {
-      stateRef.current.tiles[y][x] = 'EMPTY';
-      setTiles([...stateRef.current.tiles]);
+  const handleBlockHit = (state: GameStateRef, x: number, y: number) => {
+    const tile = state.tiles[y] && state.tiles[y][x];
+    if (tile === 'BRICK' && state.player.isBig) {
+      state.tiles[y][x] = 'EMPTY';
+      setTiles([...state.tiles]);
     } else if (tile === 'QUESTION') {
-      stateRef.current.tiles[y][x] = 'SPENT';
-      setTiles([...stateRef.current.tiles]);
+      state.tiles[y][x] = 'SPENT';
+      setTiles([...state.tiles]);
       // Spawn Mushroom
-      stateRef.current.entities.push({
+      state.entities.push({
         id: `mushroom-${Date.now()}`,
         type: 'MUSHROOM',
         pos: { x: x * TILE_SIZE, y: (y - 1) * TILE_SIZE },
@@ -273,15 +289,15 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         direction: 1,
       });
     } else if (tile && tile.startsWith('GOAL')) {
-       if (!stateRef.current.isFinished) {
-         stateRef.current.isFinished = true;
+       if (!state.isFinished) {
+         state.isFinished = true;
          onWin();
        }
     }
   };
 
-  const handleEntityInteraction = (entity: Entity) => {
-    const { player } = stateRef.current;
+  const handleEntityInteraction = (state: GameStateRef, entity: Entity) => {
+    const { player } = state;
     if (entity.isDead) return;
 
     if (entity.type === 'GOOMBA') {
@@ -297,8 +313,8 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
           player.invincibilityTime = 60;
         } else {
           player.isDead = true;
-          if (!stateRef.current.isFinished) {
-            stateRef.current.isFinished = true;
+          if (!state.isFinished) {
+            state.isFinished = true;
             onGameOver();
           }
         }
@@ -315,48 +331,55 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     }
   };
 
-  const handleAbility = (player: Player, entities: Entity[]) => {
+  const handleAbility = (player: Player, entities: Entity[], tiles: TileType[][]) => {
     switch (player.character) {
       case 'MARIO':
-        // Spin kill nearby
-        entities.forEach(e => {
-          const dist = Math.hypot(e.pos.x - player.pos.x, e.pos.y - player.pos.y);
-          if (dist < 100 && e.type === 'GOOMBA') e.isDead = true;
-        });
+        // Spin kill nearby goombas
+        for (let i = 0; i < entities.length; i++) {
+          const e = entities[i];
+          if (e && !e.isDead) {
+            const dist = Math.hypot(e.pos.x - player.pos.x, e.pos.y - player.pos.y);
+            if (dist < 100 && e.type === 'GOOMBA') {
+              e.isDead = true;
+            }
+          }
+        }
         player.invincibilityTime = 30;
         break;
       case 'LUIGI':
-      player.invincibilityTime = 60;
-      // Dash with collision check
-      const dashDistance = 120;
-      const steps = 15;
-      for (let i = 0; i < steps; i++) {
-        const nextX = player.pos.x + (player.direction * (dashDistance / steps));
-        const testPos = { ...player.pos, x: nextX };
-        const col = checkTileCollision(testPos, player.width, player.height, stateRef.current.tiles);
-        if (!col.collision) {
-          player.pos.x = nextX;
-        } else {
-          // If we hit something, stop and maybe move back slightly to avoid sticking
-          player.pos.x = player.direction > 0 ? col.x! * TILE_SIZE - player.width - 1 : (col.x! + 1) * TILE_SIZE + 1;
-          break;
+        player.invincibilityTime = 60;
+        // Dash with collision check
+        const dashDistance = 120;
+        const steps = 15;
+        for (let i = 0; i < steps; i++) {
+          const nextX = player.pos.x + (player.direction * (dashDistance / steps));
+          const testPos = { ...player.pos, x: nextX };
+          const col = checkTileCollision(testPos, player.width, player.height, tiles);
+          if (!col.collision) {
+            player.pos.x = nextX;
+          } else {
+            // Stop to avoid sticking through walls
+            player.pos.x = player.direction > 0 
+              ? (col.x! * TILE_SIZE - player.width - 1)
+              : ((col.x! + 1) * TILE_SIZE + 1);
+            break;
+          }
         }
-      }
-      break;
-    case 'TOAD':
-      // Super Jump / Sprout boost
-      player.vel.y = -18;
-      player.isGrounded = false;
-      player.invincibilityTime = 20;
-      break;
-    case 'PEACH':
-      player.invincibilityTime = 180; // 3 seconds of shield
-      break;
-  }
-};
+        break;
+      case 'TOAD':
+        // Super Jump / Sprout boost
+        player.vel.y = -18;
+        player.isGrounded = false;
+        player.invincibilityTime = 20;
+        break;
+      case 'PEACH':
+        player.invincibilityTime = 180; // 3 seconds of shield
+        break;
+    }
+  };
 
   useEffect(() => {
-    let frame = 0;
+    let frame: number;
     const loop = () => {
       update(controls);
       draw();
@@ -365,7 +388,6 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     frame = requestAnimationFrame(loop);
     return () => {
       cancelAnimationFrame(frame);
-      (stateRef as any).current = null;
     };
   }, [controls, update]);
 
@@ -375,21 +397,30 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    const state = stateRef.current;
+    if (!state || !state.tiles) return;
+
     ctx.fillStyle = COLORS.SKY;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     ctx.save();
     ctx.translate(-camera, 0);
 
-    // Draw Tiles
+    // Draw Tiles with culling
     const cameraLeft = camera;
     const cameraRight = camera + canvas.width;
 
-    tiles.forEach((row, y) => {
-      row.forEach((tile, x) => {
+    const tiles = state.tiles;
+    const entities = state.entities;
+
+    for (let y = 0; y < tiles.length; y++) {
+      const row = tiles[y];
+      if (!row) continue;
+      for (let x = 0; x < row.length; x++) {
+        const tile = row[x];
         const tileX = x * TILE_SIZE;
-        if (tileX + TILE_SIZE < cameraLeft || tileX > cameraRight) return; // Cull
-        if (tile === 'EMPTY') return;
+        if (tileX + TILE_SIZE < cameraLeft || tileX > cameraRight) continue; // Cull
+        if (tile === 'EMPTY') continue;
         
         ctx.fillStyle = COLORS[tile as keyof typeof COLORS] || '#000';
         if (tile.startsWith('PIPE')) ctx.fillStyle = COLORS.PIPE;
@@ -409,13 +440,14 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
           ctx.fillRect(tileX, y * TILE_SIZE, 4, 1);
           ctx.fillRect(tileX, y * TILE_SIZE, 1, 4);
         }
-      });
-    });
+      }
+    }
 
-    // Draw Entities
-    entities.forEach((e) => {
-      if (e.isDead) return;
-      if (e.pos.x + e.width < cameraLeft || e.pos.x > cameraRight) return; // Cull entities too
+    // Draw Entities with culling
+    for (let i = 0; i < entities.length; i++) {
+      const e = entities[i];
+      if (!e || e.isDead) continue;
+      if (e.pos.x + e.width < cameraLeft || e.pos.x > cameraRight) continue; // Cull
       
       ctx.fillStyle = COLORS[e.type as keyof typeof COLORS] || '#fff';
       if (e.type === 'COIN') {
@@ -425,11 +457,11 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       } else {
         ctx.fillRect(e.pos.x, e.pos.y, e.width, e.height);
       }
-    });
+    }
 
     // Draw Player
-    if (!stateRef.current.player.isDead) {
-      const p = stateRef.current.player;
+    const p = state.player;
+    if (!p.isDead) {
       if (p.invincibilityTime % 4 < 2) {
         ctx.save();
         ctx.translate(p.pos.x + p.width / 2, p.pos.y + p.height / 2);
