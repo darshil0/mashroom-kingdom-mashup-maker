@@ -19,18 +19,28 @@ export function checkTileCollision(
   height: number,
   tiles: TileType[][]
 ): CollisionResult {
+  // Null/undefined safety
+  if (!pos || !tiles || tiles.length === 0) {
+    return { collision: false };
+  }
+
   const left = Math.floor(pos.x / TILE_SIZE);
   const right = Math.floor((pos.x + width - 1) / TILE_SIZE);
   const top = Math.floor(pos.y / TILE_SIZE);
   const bottom = Math.floor((pos.y + height - 1) / TILE_SIZE);
 
   for (let y = top; y <= bottom; y++) {
+    if (y < 0 || y >= tiles.length) continue;
+    
+    const row = tiles[y];
+    if (!row) continue;
+    
     for (let x = left; x <= right; x++) {
-      if (y >= 0 && y < tiles.length && x >= 0 && x < tiles[0].length) {
-        const tile = tiles[y][x];
-        if (tile !== 'EMPTY') {
-          return { collision: true, type: tile, x, y };
-        }
+      if (x < 0 || x >= row.length) continue;
+      
+      const tile = row[x];
+      if (tile && tile !== 'EMPTY') {
+        return { collision: true, type: tile, x, y };
       }
     }
   }
@@ -42,6 +52,8 @@ export function isRectOverlap(
   r1: { x: number; y: number; w: number; h: number },
   r2: { x: number; y: number; w: number; h: number }
 ): boolean {
+  if (!r1 || !r2) return false;
+  
   return (
     r1.x < r2.x + r2.w &&
     r1.x + r1.w > r2.x &&
