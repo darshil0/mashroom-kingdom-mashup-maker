@@ -2,6 +2,39 @@
 
 All notable changes to the **Mushroom Kingdom Mashup Maker** will be documented in this file.
 
+### [1.8.1] - 2026-05-12
+
+#### Fixed
+- **Gemini API Initialization**: Corrected GoogleGenAI constructor call to use object parameter syntax `{ apiKey }` instead of direct string argument. Added explicit API key validation and error exit.
+- **Type Safety: Removed Loose Any Assertions**: Eliminated unsafe `as any` casts in `LEVEL_SCHEMA` type definitions. Replaced with proper TypeScript inference.
+- **GameCanvas Null Safety**: Added comprehensive null/undefined guards in game loop. Introduced `GameStateRef` interface for stricter state management. Fixed potential crashes from accessing `stateRef.current` without validation.
+- **Entity Iteration Safety**: Wrapped entity array iteration in null checks and bounds validation to prevent accessing deleted entities during collision resolution.
+- **Goomba Ledge Detection Bounds**: Added array bounds checking before accessing `tiles[tileY][tileX]` in Goomba patrol logic. Prevents out-of-bounds crashes on level edges.
+- **Physics Collision Array Access**: Hardened `checkTileCollision` with defensive null checks for `pos`, `tiles`, and individual row access. Added bounds validation on x/y coordinates before tile lookup.
+- **Rectangle Collision Null Guards**: Added null safety checks in `isRectOverlap` to handle undefined collision rectangles gracefully.
+- **Player State Reset on Character Switch**: Fixed missing ability cooldown and invincibility reset when changing characters mid-game (resolves carried-over ability timers).
+- **Entity Interaction: Null Check on Entity Reference**: Added guard clause in `handleEntityInteraction` to validate entity existence before accessing properties.
+- **Camera System Threat Awareness**: Improved Goomba detection loop to include null/undefined checks and distance calculations with fallback logic.
+- **Block Hit Handler: Defensive Tile Access**: Added row existence check in `handleBlockHit` before accessing tile data.
+- **Ability Handler: Safe Entity Iteration**: Wrapped ability execution (especially Mario's area-of-effect spin) with loop guards and null validation.
+- **Key Binding Conflicts**: Updated `useControls` hook to prevent accidental space key submission in text fields. Added event target validation to distinguish game canvas from input elements.
+- **Server API Error Handling**: Implemented proper error response structure with detailed logging. Added response validation to ensure Gemini returns valid level schema.
+- **Health Check Endpoint**: Added `/api/health` endpoint for system status monitoring and load balancer compatibility.
+
+#### Added
+- **API Key Validation**: Explicit check on server startup. Process exits with clear error message if `GEMINI_API_KEY` is not configured.
+- **Response Schema Validation**: Server now validates Gemini response structure before returning to client. Returns structured error object on malformed data.
+- **Timeout Protection**: Added 15-second timeout to level generation fetch call via `AbortSignal.timeout()`. Prevents hanging requests to Gemini API.
+- **Enhanced Logging**: Improved diagnostic messages throughout server and client for better troubleshooting (prefixed with system log markers like `FATAL_ERR`, `OPERATIONAL`, etc.).
+
+#### Changed
+- **Server Error Responses**: Standardized error response format to include both `error` and `details` fields for better client-side error handling.
+- **GameState Interface**: Refined `GameStateRef` to ensure type safety across mutable state operations in game loop.
+- **Physics Engine Callsites**: Updated all `checkTileCollision` calls to handle potential undefined collision coordinates with null coalescing.
+
+#### Removed
+- **Unsafe Type Assertions**: Eliminated `as any` patterns in schema definitions. Schema now properly typed as `any` (JavaScript object).
+
 ### [1.8.0] - 2026-04-21
 
 #### Fixed
