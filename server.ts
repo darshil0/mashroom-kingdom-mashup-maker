@@ -9,28 +9,35 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
-const ai = new GoogleGenAI(process.env.GEMINI_API_KEY || '');
+// Initialize Gemini with proper error handling
+const apiKey = process.env.GEMINI_API_KEY;
+if (!apiKey) {
+  console.error('FATAL_ERR: GEMINI_API_KEY environment variable not set. Exiting.');
+  process.exit(1);
+}
 
-const LEVEL_SCHEMA = {
-  type: 'object' as any,
+const ai = new GoogleGenAI({ apiKey });
+
+const LEVEL_SCHEMA: any = {
+  type: 'object',
   properties: {
-    width: { type: 'number' as any, description: "Width of the level in tiles" },
-    height: { type: 'number' as any, description: "Height of the level in tiles" },
+    width: { type: 'number', description: "Width of the level in tiles" },
+    height: { type: 'number', description: "Height of the level in tiles" },
     tiles: {
-      type: 'array' as any,
+      type: 'array',
       items: {
-        type: 'array' as any,
-        items: { type: 'string' as any, description: "Tile type: EMPTY, GROUND, BRICK, QUESTION, PIPE_TOP_LEFT, etc." }
+        type: 'array',
+        items: { type: 'string', description: "Tile type: EMPTY, GROUND, BRICK, QUESTION, PIPE_TOP_LEFT, etc." }
       }
     },
     entities: {
-      type: 'array' as any,
+      type: 'array',
       items: {
-        type: 'object' as any,
+        type: 'object',
         properties: {
-          type: { type: 'string' as any, description: "Entity type: GOOMBA, COIN, MUSHROOM" },
-          x: { type: 'number' as any, description: "X coordinate in tiles" },
-          y: { type: 'number' as any, description: "Y coordinate in tiles" }
+          type: { type: 'string', description: "Entity type: GOOMBA, COIN, MUSHROOM" },
+          x: { type: 'number', description: "X coordinate in tiles" },
+          y: { type: 'number', description: "Y coordinate in tiles" }
         }
       }
     }
@@ -89,12 +96,28 @@ app.post('/api/generate-level', async (req, res) => {
     const response = await result.response;
     const text = response.text();
     
-    if (!text) throw new Error("Empty response");
-    res.json(JSON.parse(text));
+    if (!text) throw new Error("Empty response from Gemini");
+    
+    const levelData = JSON.parse(text);
+    
+    // Validate response structure
+    if (!levelData.width || !levelData.height || !Array.isArray(levelData.tiles) || !Array.isArray(levelData.entities)) {
+      throw new Error("Invalid level schema returned from Gemini");
+    }
+    
+    res.json(levelData);
   } catch (error) {
     console.error("Failed to generate level:", error);
-    res.status(500).json({ error: "Generation failed" });
+    res.status(500).json({ 
+      error: "FORGE_CRITICAL: Level generation failed",
+      details: error instanceof Error ? error.message : "Unknown error"
+    });
   }
+});
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'OPERATIONAL', version: 'v1.8.0' });
 });
 
 async function startServer() {
@@ -112,10 +135,15 @@ async function startServer() {
     });
   }
 
-  app.listen(3000, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:3000`);
+  const port = 3000;
+  const host = "0.0.0.0";
+  
+  app.listen(port, host, () => {
+    console.log(`SYSTEM_READY: Mashup Engine running on http://localhost:${port}`);
   });
 }
 
-startServer();
-
+startServer().catch(err => {
+  console.error("FATAL_ERR: Failed to start server:", err);
+  process.exit(1);
+});
