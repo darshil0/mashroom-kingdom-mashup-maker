@@ -15,7 +15,7 @@ You are a Lead Game Architect and Lead Product Designer. You prioritize high-per
 ## Technical Constraints
 - The game engine uses a tile-based coordinate system (32px tiles).
 - Entities (Goombas, Coins) must be kept in the `entities` array in the `LevelData`.
-- Level generation is handled server-side via the `gemini-3-flash-preview` model.
+- Level generation is handled server-side via the `gemini-2.5-flash` model.
 
 ## Naming Conventions
 - In-game messages should use uppercase "System Log" style: `INITIATING_SEQUENCE`, `MISSION_COMPLETE`.

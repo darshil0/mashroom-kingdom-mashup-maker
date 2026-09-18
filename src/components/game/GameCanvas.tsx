@@ -358,10 +358,12 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
           if (!col.collision) {
             player.pos.x = nextX;
           } else {
-            // Stop to avoid sticking through walls
-            player.pos.x = player.direction > 0 
-              ? (col.x! * TILE_SIZE - player.width - 1)
-              : ((col.x! + 1) * TILE_SIZE + 1);
+            // Stop to avoid sticking through walls safely checking collision coordinates
+            if (col.x !== undefined) {
+              player.pos.x = player.direction > 0
+                ? (col.x * TILE_SIZE - player.width - 1)
+                : ((col.x + 1) * TILE_SIZE + 1);
+            }
             break;
           }
         }

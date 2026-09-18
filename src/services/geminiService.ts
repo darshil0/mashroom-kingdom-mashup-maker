@@ -3,13 +3,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { TileType, EntityType } from "../core/types";
+import { LevelData } from "../core/types";
+import { validateAndSanitizeLevel } from "../utils/levelSerialization";
 
 export async function generateLevel(
   prompt: string, 
   levelIndex: number = 0,
   maxRetries: number = 1
-): Promise<any | null> {
+): Promise<LevelData | null> {
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       const response = await fetch('/api/generate-level', {
@@ -26,7 +27,12 @@ export async function generateLevel(
         throw new Error(`API error: ${response.status}`);
       }
       
-      return await response.json();
+      const rawData = await response.json();
+      const validatedLevel = validateAndSanitizeLevel(rawData);
+      if (!validatedLevel) {
+        throw new Error('INVALID_PAYLOAD: Received malformed level data structure');
+      }
+      return validatedLevel;
     } catch (error) {
       if (attempt === maxRetries) {
         console.error('Level generation failed after retries:', error);
