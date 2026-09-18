@@ -1,76 +1,57 @@
-# 🍄 Mushroom Kingdom Mashup Maker (v1.8.1)
+# 🍄 Mushroom Kingdom Mashup Maker
 
-A retro-inspired platformer and level editor enriched with AI level generation. Build, play, and share your own Mushroom Kingdom adventures.
+A React/TypeScript platformer and level editor powered by Vite, Express, and Google Gemini. Build, play, and share custom levels through the Mission Control interface.
 
-## 🌟 Features
+## Features
 
-- **AI Level Generation**: Powered by Google Gemini (`gemini-2.5-flash`). Generate infinite, customized levels using natural language prompts.
-- **Modern Technical Dashboard**: A cinematic "Mission Control" UI featuring scanlines, glassmorphism, 32px background grids, and reactive tech-borders.
-- **Advanced Cinematic Effects**: Integrated global noise-texture overlays and CSS-driven chromatic aberration glitch effects for high-intensity mission states.
-- **Hybrid Architecture (25% HTML)**: Optimized for performance by blending React logic with high-speed semantic HTML structures.
-- **Multiple Characters**: Play as Mario, Luigi, Toad, or Peach, each with unique stats and special abilities.
-- **Modular Architecture**: Optimized file structure with specialized subdirectories (`core`, `editor`, `game`, `layout`) for elite maintainability.
-- **Comprehensive Editor**: A grid-based tile and entity editor for handcrafting levels with instant shareable link generation.
-- **Campaign Mode**: Progress through 10 AI-generated sectors with increasing difficulty and unique environmental themes.
+- AI-generated levels with validated structured responses
+- Playable platformer with Mario, Luigi, Toad, and Peach abilities
+- Grid-based editor with shareable level codes
+- Ten-sector campaign progression
+- Responsive technical dashboard UI
 
-## 📊 Unit Specifications
+## Requirements
 
-| Unit | Speed | Jump | Special Ability | Cooldown |
-| :--- | :--- | :--- | :--- | :--- |
-| **MARIO** | 4.0 | 12.0 | Fire Cyclone (Spin) | 300f |
-| **LUIGI** | 3.5 | 14.5 | Ghost Dash (Phase) | 400f |
-| **TOAD** | 5.5 | 10.0 | Super Sprout (Boost) | 250f |
-| **PEACH** | 3.8 | 11.0 | Crystal Barrier (Shield) | 500f |
+- Node.js 18+
+- npm 9+
+- Gemini API key for AI generation
 
-## 🛠️ AI Forge Prompting
+## Setup
 
-To get the most out of the Gemini AI Forge, use descriptive architectural prompts:
-- *"A lava-filled castle with floating brick platforms and high Goomba density."*
-- *"A peaceful forest with many pipes and hidden coin clusters."*
-- *"A treacherous sky bridge with narrow platforms and spikes."*
+```bash
+git clone https://github.com/darshil0/mashroom-kingdom-mashup-maker.git
+cd mashroom-kingdom-mashup-maker
+cp .env.example .env
+npm install
+npm run dev
+```
 
-## 🚀 Getting Started
+The Express development server serves the Vite app at `http://localhost:3000`.
 
-### Prerequisites
-- Node.js (v18 or higher)
-- A Google Gemini API Key
+## Environment
 
-### Installation
+```env
+GEMINI_API_KEY="your_gemini_key_here"
+PORT=3000
+DISABLE_HMR=false
+```
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/darshil0/mashroom-kingdom-mashup-maker.git
-   cd mashroom-kingdom-mashup-maker
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Set up environment variables in a `.env` file:
-   ```env
-   GEMINI_API_KEY=your_api_key_here
-   ```
-4. Start the engine:
-   ```bash
-   npm run dev
-   ```
+AI generation returns a validated `LevelData` payload. If the key is missing, the app remains available but level generation returns a clear configuration error.
 
-## 🎮 How to Play
+## Commands
 
-- **WASD / Arrow Keys**: Movement (Left/Right/Up/Down)
-- **Space Bar**: Jump
-- **X / Shift / P**: Special Ability (Unique per character)
-- **Sharing**: Use "GEN_SHARE_ID" in the Editor and "SYNC" in the Main Menu.
+- `npm run dev` — start the Express/Vite development server
+- `npm run lint` — run TypeScript checks
+- `npm run build` — create a production client build
+- `npm run start` — start the server
 
-## 📜 Sector Mapping Protocols
+## Controls
 
-The engine follows strict coordinate mapping for sector generation:
-- **Grid Scale**: 32px standard tiles
-- **Height Constraints**: Exactly 15 tiles
-- **Start Vector**: (2, 10)
-- **Extraction Point**: Far right edge (GOAL)
-- **Tile Glossary**: GROUND, BRICK, QUESTION, SPENT, SPIKE, PIPE, GOAL
+- WASD or arrow keys: move
+- Space: jump
+- X, Shift, or P: use the character ability
+- In the editor, Tab switches tools, brackets cycle selections, and right-click removes entities
 
-## 📜 License
+## License
 
-This project is licensed under the Apache-2.0 License.
+Apache-2.0

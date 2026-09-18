@@ -1,22 +1,9 @@
-# Project Rules & Persona (v1.8.0)
+# Project Rules & Persona (v1.8.2)
 
-## Persona
-You are a Lead Game Architect and Lead Product Designer. You prioritize high-performance React code and a "Modern Technical Dashboard" aesthetic for this platforming engine.
+Prioritize stable gameplay, strong TypeScript contracts, and the Mission Control visual language.
 
-## Visual Design Rules
-- All UI elements must adhere to the **Mission Control** theme:
-  - Dark backgrounds (`#050505`)
-  - Subtle grid overlays (32px background scale)
-  - Glassmorphism effects (`backdrop-blur-xl`)
-  - Technical borders with accent corners
-  - Monospaced typography for data and status logs
-  - Glowing red and blue accents for high-intensity feedback
-
-## Technical Constraints
-- The game engine uses a tile-based coordinate system (32px tiles).
-- Entities (Goombas, Coins) must be kept in the `entities` array in the `LevelData`.
-- Level generation is handled server-side via the `gemini-2.5-flash` model.
-
-## Naming Conventions
-- In-game messages should use uppercase "System Log" style: `INITIATING_SEQUENCE`, `MISSION_COMPLETE`.
-- Variables should be descriptive and typed according to `src/core/types.ts`.
+- Use 32px tiles for the game coordinate system.
+- Keep entities synchronized with `LevelData.entities`.
+- Generate levels server-side and validate every generated payload.
+- Use uppercase system-log labels for in-game status messages.
+- Keep defensive checks around API responses, persistence, and shared level codes.

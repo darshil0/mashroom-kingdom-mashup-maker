@@ -1,154 +1,42 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import { LevelData, TileType, EntityType } from '../core/types';
 
-// Simple mapping for compression
-const TILE_MAP: Record<string, string> = {
-  'EMPTY': '0',
-  'GROUND': '1',
-  'BRICK': '2',
-  'QUESTION': '3',
-  'PIPE_TOP_LEFT': '4',
-  'PIPE_TOP_RIGHT': '5',
-  'PIPE_BODY_LEFT': '6',
-  'PIPE_BODY_RIGHT': '7',
-  'GOAL_TOP': '8',
-  'GOAL_BODY': '9',
-  'SPIKE': 'A',
-  'SPENT': 'B',
-  'SKY': 'C',
+const TILE_MAP: Record<TileType, string> = {
+  EMPTY: '0', GROUND: '1', BRICK: '2', QUESTION: '3', SPENT: '4',
+  PIPE_TOP_LEFT: '5', PIPE_TOP_RIGHT: '6', PIPE_BODY_LEFT: '7', PIPE_BODY_RIGHT: '8',
+  GOAL_TOP: '9', GOAL_BODY: 'A', SPIKE: 'B', SKY: 'C',
 };
+const REV_TILE_MAP: Record<string, TileType> = Object.fromEntries(Object.entries(TILE_MAP).map(([key, value]) => [value, key as TileType]));
+const ENTITY_MAP: Record<EntityType, string> = { PLAYER: 'p', GOOMBA: 'e', MUSHROOM: 'm', COIN: 'c' };
+const REV_ENTITY_MAP: Record<string, EntityType> = Object.fromEntries(Object.entries(ENTITY_MAP).map(([key, value]) => [value, key as EntityType]));
 
-const REV_TILE_MAP: Record<string, TileType> = Object.fromEntries(
-  Object.entries(TILE_MAP).map(([k, v]) => [v, k as TileType])
-);
-
-const ENTITY_MAP: Record<string, string> = {
-  'GOOMBA': 'e',
-  'COIN': 'c',
-  'MUSHROOM': 'm',
-};
-
-const REV_ENTITY_MAP: Record<string, EntityType> = Object.fromEntries(
-  Object.entries(ENTITY_MAP).map(([k, v]) => [v, k as EntityType])
-);
-
-/**
- * Validates and sanitizes a LevelData payload to ensure it is safe and properly formatted for gameplay.
- */
-export function validateAndSanitizeLevel(data: any): LevelData | null {
-  if (!data || typeof data !== 'object') return null;
-
-  const width = Number(data.width);
-  const height = Number(data.height);
-
-  if (!Number.isInteger(width) || width <= 0 || !Number.isInteger(height) || height <= 0) {
-    return null;
-  }
-
-  if (!Array.isArray(data.tiles)) return null;
-
-  const sanitizedTiles: TileType[][] = [];
-
-  for (let y = 0; y < height; y++) {
-    const row = data.tiles[y];
-    const sanitizedRow: TileType[] = [];
-    for (let x = 0; x < width; x++) {
-      const tile = row && row[x];
-      if (typeof tile === 'string' && (tile in TILE_MAP || tile === 'EMPTY')) {
-        sanitizedRow.push(tile as TileType);
-      } else {
-        sanitizedRow.push('EMPTY');
-      }
-    }
-    sanitizedTiles.push(sanitizedRow);
-  }
-
-  const sanitizedEntities: { type: EntityType; x: number; y: number }[] = [];
-  if (Array.isArray(data.entities)) {
-    for (const e of data.entities) {
-      if (
-        e &&
-        typeof e === 'object' &&
-        typeof e.type === 'string' &&
-        (e.type === 'GOOMBA' || e.type === 'COIN' || e.type === 'MUSHROOM') &&
-        typeof e.x === 'number' &&
-        !isNaN(e.x) &&
-        typeof e.y === 'number' &&
-        !isNaN(e.y)
-      ) {
-        sanitizedEntities.push({
-          type: e.type as EntityType,
-          x: Math.max(0, Math.min(width - 1, e.x)),
-          y: Math.max(0, Math.min(height - 1, e.y)),
-        });
-      }
-    }
-  }
-
-  return {
-    width,
-    height,
-    tiles: sanitizedTiles,
-    entities: sanitizedEntities,
-  };
-}
-
-/**
- * Serializes LevelData to a compact Base64 string for sharing.
- */
 export function serializeLevel(level: LevelData): string {
   try {
-    const validated = validateAndSanitizeLevel(level);
-    if (!validated) return '';
-
-    const tilesStr = validated.tiles.map(row => row.map(t => TILE_MAP[t] || '0').join('')).join('|');
-    const entitiesStr = validated.entities.map(e => `${ENTITY_MAP[e.type]}${e.x},${e.y}`).join(';');
-    const raw = `${validated.width}x${validated.height}:${tilesStr}:${entitiesStr}`;
-    return btoa(raw);
-  } catch (e) {
-    console.error('Serialization failed:', e);
+    if (!Number.isInteger(level.width) || !Number.isInteger(level.height) || level.tiles.length !== level.height) return '';
+    const tiles = level.tiles.map((row) => row.map((tile) => TILE_MAP[tile] ?? TILE_MAP.EMPTY).join('')).join('|');
+    const entities = level.entities.map((entity) => `${ENTITY_MAP[entity.type] ?? 'e'}${Math.floor(entity.x)},${Math.floor(entity.y)}`).join(';');
+    return btoa(`${level.width}x${level.height}:${tiles}:${entities}`);
+  } catch (error) {
+    console.error('Serialization failed:', error);
     return '';
   }
 }
 
-/**
- * Deserializes a LevelData string.
- */
 export function deserializeLevel(code: string): LevelData | null {
   try {
-    const raw = atob(code);
-    const parts = raw.split(':');
-    if (parts.length < 2) return null;
-    const [dims, tilesPart, entitiesPart] = parts;
+    const [dims, tilesPart, entitiesPart = ''] = atob(code).split(':');
     const [width, height] = dims.split('x').map(Number);
-    
-    if (!width || !height || !tilesPart) return null;
-    
-    // Parse tiles
+    if (!Number.isInteger(width) || !Number.isInteger(height) || width <= 0 || height <= 0) return null;
     const rows = tilesPart.split('|');
-    if (rows.length === 0) return null;
-    const tiles: TileType[][] = rows.map(row => 
-      row.split('').map(char => REV_TILE_MAP[char] || 'EMPTY')
-    );
-
-    // Parse entities
-    const entities = entitiesPart ? entitiesPart.split(';').filter(Boolean).map(eStr => {
-      const typeChar = eStr[0];
-      const parts = eStr.slice(1).split(',');
-      if (parts.length < 2) return null;
-      const [x, y] = parts.map(Number);
-      const entityType = REV_ENTITY_MAP[typeChar];
-      if (!entityType) return null;
-      return { type: entityType, x: x || 0, y: y || 0 };
-    }).filter((e): e is { type: EntityType; x: number; y: number } => e !== null) : [];
-
-    return validateAndSanitizeLevel({ width, height, tiles, entities });
-  } catch (e) {
-    console.error('Deserialization failed:', e);
+    if (rows.length !== height || rows.some((row) => row.length !== width)) return null;
+    const tiles = rows.map((row) => Array.from(row, (char) => REV_TILE_MAP[char] ?? 'EMPTY'));
+    const entities = entitiesPart ? entitiesPart.split(';').filter(Boolean).map((value) => {
+      const type = REV_ENTITY_MAP[value[0]];
+      const [x, y] = value.slice(1).split(',').map(Number);
+      return type && Number.isFinite(x) && Number.isFinite(y) ? { type, x, y } : null;
+    }).filter((entity): entity is { type: EntityType; x: number; y: number } => entity !== null) : [];
+    return { width, height, tiles, entities };
+  } catch (error) {
+    console.error('Deserialization failed:', error);
     return null;
   }
 }
