@@ -2,199 +2,173 @@
 
 All notable changes to the **Mushroom Kingdom Mashup Maker** will be documented in this file.
 
+### [1.8.2] - 2026-09-18
+
+#### Fixed
+- **Level Generation Validation**: Hardened the Gemini level generation flow so malformed or incomplete payloads are rejected before reaching the game loop.
+- **Client-side Level Validation**: Added defensive shape checks to `src/services/geminiService.ts` so invalid `LevelData` objects are not accepted from the server.
+- **Serialization Robustness**: Fixed the level-sharing serializer/deserializer to cover the full supported tile set and reject invalid level payloads cleanly.
+- **State Reset Integrity**: Corrected player and entity reset behavior when changing the active character or loading a different level.
+- **Win/Game Over Guarding**: Prevented duplicate end-of-level callbacks from firing repeatedly in the same frame.
+- **Dependency Hygiene**: Cleaned up duplicate/conflicting package definitions across the Vite and React dependency tree.
+
+#### Added
+- **Graceful API Failures**: The app now reports a clear configuration error when the Gemini key is missing and handles malformed generation results gracefully.
+- **Environment-aware server startup**: Improved host/port defaults and Vite/Express boot flow so the app starts more predictably across environments.
+- **Documentation sync**: Updated setup instructions and runtime guidance to match the actual project configuration.
+
+#### Changed
+- **Gemini model alignment**: Updated the generation configuration to a current stable Gemini setup better suited for structured responses.
+- **Project version metadata**: Synced package and documentation version markers to `1.8.2`.
+
 ### [1.8.1] - 2026-05-12
 
 #### Fixed
-- **Gemini API Initialization**: Corrected GoogleGenAI constructor call to use object parameter syntax `{ apiKey }` instead of direct string argument. Added explicit API key validation and error exit.
+- **Gemini API Initialization**: Corrected GoogleGenAI constructor call to use object parameter syntax `{ apiKey }` instead of direct string argument. Added explicit API key validation and error handling.
 - **Type Safety: Removed Loose Any Assertions**: Eliminated unsafe `as any` casts in `LEVEL_SCHEMA` type definitions. Replaced with proper TypeScript inference.
-- **GameCanvas Null Safety**: Added comprehensive null/undefined guards in game loop. Introduced `GameStateRef` interface for stricter state management. Fixed potential crashes from accessing `stateRef.current` without validation.
+- **GameCanvas Null Safety**: Added comprehensive null/undefined guards in game loop. Introduced `GameStateRef` interface for stricter state management. Fixed potential crashes from accessing stale state.
 - **Entity Iteration Safety**: Wrapped entity array iteration in null checks and bounds validation to prevent accessing deleted entities during collision resolution.
 - **Goomba Ledge Detection Bounds**: Added array bounds checking before accessing `tiles[tileY][tileX]` in Goomba patrol logic. Prevents out-of-bounds crashes on level edges.
-- **Physics Collision Array Access**: Hardened `checkTileCollision` with defensive null checks for `pos`, `tiles`, and individual row access. Added bounds validation on x/y coordinates before tile lookup.
+- **Physics Collision Array Access**: Hardened `checkTileCollision` with defensive null checks for `pos`, `tiles`, and individual row access. Added bounds validation on x/y coordinates before tile access.
 - **Rectangle Collision Null Guards**: Added null safety checks in `isRectOverlap` to handle undefined collision rectangles gracefully.
-- **Player State Reset on Character Switch**: Fixed missing ability cooldown and invincibility reset when changing characters mid-game (resolves carried-over ability timers).
+- **Player State Reset on Character Switch**: Fixed missing ability cooldown and invincibility reset when changing characters mid-game.
 - **Entity Interaction: Null Check on Entity Reference**: Added guard clause in `handleEntityInteraction` to validate entity existence before accessing properties.
 - **Camera System Threat Awareness**: Improved Goomba detection loop to include null/undefined checks and distance calculations with fallback logic.
 - **Block Hit Handler: Defensive Tile Access**: Added row existence check in `handleBlockHit` before accessing tile data.
-- **Ability Handler: Safe Entity Iteration**: Wrapped ability execution (especially Mario's area-of-effect spin) with loop guards and null validation.
-- **Key Binding Conflicts**: Updated `useControls` hook to prevent accidental space key submission in text fields. Added event target validation to distinguish game canvas from input elements.
+- **Ability Handler: Safe Entity Iteration**: Wrapped ability execution with loop guards and null validation.
+- **Key Binding Conflicts**: Updated `useControls` hook to prevent accidental space key submission in text fields. Added event target validation.
 - **Server API Error Handling**: Implemented proper error response structure with detailed logging. Added response validation to ensure Gemini returns valid level schema.
 - **Health Check Endpoint**: Added `/api/health` endpoint for system status monitoring and load balancer compatibility.
 
 #### Added
-- **API Key Validation**: Explicit check on server startup. Process exits with clear error message if `GEMINI_API_KEY` is not configured.
-- **Response Schema Validation**: Server now validates Gemini response structure before returning to client. Returns structured error object on malformed data.
-- **Timeout Protection**: Added 15-second timeout to level generation fetch call via `AbortSignal.timeout()`. Prevents hanging requests to Gemini API.
-- **Enhanced Logging**: Improved diagnostic messages throughout server and client for better troubleshooting (prefixed with system log markers like `FATAL_ERR`, `OPERATIONAL`, etc.).
+- **API Key Validation**: Explicit check on server startup. Process exits with a clear error message if `GEMINI_API_KEY` is not configured.
+- **Response Schema Validation**: Server now validates Gemini response structure before returning to client.
+- **Timeout Protection**: Added 15-second timeout to level generation fetch call via `AbortSignal.timeout()`.
+- **Enhanced Logging**: Improved diagnostic messages throughout server and client for troubleshooting.
 
 #### Changed
-- **Server Error Responses**: Standardized error response format to include both `error` and `details` fields for better client-side error handling.
-- **GameState Interface**: Refined `GameStateRef` to ensure type safety across mutable state operations in game loop.
-- **Physics Engine Callsites**: Updated all `checkTileCollision` calls to handle potential undefined collision coordinates with null coalescing.
+- **Server Error Responses**: Standardized error response format to include both `error` and `details` fields.
+- **GameState Interface**: Refined state management for stricter type safety.
+- **Physics Engine Callsites**: Updated collision calls to handle potential undefined collision coordinates safely.
 
 #### Removed
-- **Unsafe Type Assertions**: Eliminated `as any` patterns in schema definitions. Schema now properly typed as `any` (JavaScript object).
+- **Unsafe Type Assertions**: Eliminated `as any` patterns in schema definitions.
 
 ### [1.8.0] - 2026-04-21
 
 #### Fixed
-- **Server AI SDK Refactor**: Fixed incorrect usage of `@google/genai` SDK in `server.ts`. Corrected method calls and response parsing for `gemini-3-flash-preview`.
-- **Enhanced Physics Link**: Improved Luigi's Ghost Dash to prevent wall clipping while maintaining phasing capabilities.
+- **Server AI SDK Refactor**: Fixed incorrect usage of `@google/genai` SDK in `server.ts`.
+- **Enhanced Physics Link**: Improved Luigi's Ghost Dash to prevent wall clipping.
 - **Safe Spawn Protocol**: Refined entity spawning logic to prevent internal collision on generation.
-- **Environmental Persistence**: Injected `dotenv` configuration in the server kernel to ensure API key availability across all environments.
-- **Campaign Persistence**: Integrated `localStorage` to preserve world progress, total scores, and unlocks.
-- **Viewport Culling**: Implemented dynamic tile and entity culling in `GameCanvas.tsx` for enhanced rendering performance.
-- **AI Stability Patch**: Added exponential backoff retry logic and request timeouts to `geminiService.ts`.
-- **Physics Null Safety**: Eliminated non-null assertions in the physics engine to prevent runtime crashes during tile collisions.
-- **Editor Synchronization**: Fixed a state sync bug where the Editor wouldn't reflect changes from shared level codes.
-- **Character Logic**: Added auto-reset for ability cooldowns and invincibility status on character change.
-- **Tactile Feedback**: Added animated loading states and button disabling for the SYNC interface in `MainMenu.tsx`.
+- **Environmental Persistence**: Injected `dotenv` configuration to ensure API key availability.
+- **Campaign Persistence**: Integrated `localStorage` to preserve progress and scores.
+- **Viewport Culling**: Implemented dynamic tile and entity culling in `GameCanvas.tsx`.
+- **AI Stability Patch**: Added exponential backoff retry logic and request timeouts.
+- **Physics Null Safety**: Eliminated dangerous null assumptions in collision checks.
+- **Editor Synchronization**: Fixed state sync bugs when loading shared level codes.
+- **Character Logic**: Added ability reset behavior on character change.
 - **Goomba Ledge Detection**: Fixed out-of-bounds array access in enemy patrol logic.
-- **UI Safety (No-Alert)**: Removed all synchronous `window.alert` calls, replacing them with a non-blocking, state-driven Status Message Overlay.
-- **Deserialization Resilience**: Added defensive dimensional and null-checks to the level sharing protocol to prevent crashes from malformed codes.
-- **UI Calibration**: Corrected the global text selection color from red to blue to prevent "red blocks" during documentation highlighting.
+- **UI Safety**: Removed blocking alert usage and replaced it with a status overlay.
+- **Deserialization Resilience**: Added defensive checks for malformed codes.
 
 #### Added
-- **Visual Grid Overlay**: Implemented a 32px technical grid background across the entire platform as per Mission Control specifications.
-- **Block Interaction Update**: Introduced `SPENT` tile state for `QUESTION` blocks to provide immediate visual feedback after resource extraction.
-- **Control System Expansion**: Added full `WASD` support to align with modern platforming standards.
-- **Advanced Aesthetics**: Enhanced tile rendering with technical borders, accent corners, and upgraded `backdrop-blur-xl` glassmorphism.
-- **Cinematic Visuals**: Integrated a global noise-texture overlay and reactive 4-corner tech borders with hover states.
-- **Glitch Protocol**: Implemented CSS chromatic aberration glitch effects for high-intensity mission status headers.
-- **Scanline Fidelity**: Optimized scanline frequency and opacity for improved cinematic depth.
-- **Semantic Overhaul**: Refactored `App.tsx` with HTML5 semantic tags (`<main>`, `<section>`, `<header>`, `<article>`) and comprehensive ARIA accessibility attributes.
-- **Architectural Reorganization**: Migrated `src/components` into a specialized subdirectory structure (`layout`, `editor`, `game`, `common`, `menu`) for improved maintainability and clear concern separation.
+- **Visual Grid Overlay**: Added the 32px technical grid background.
+- **Block Interaction Update**: Added `SPENT` tile handling for question blocks.
+- **Control System Expansion**: Added `WASD` support.
+- **Advanced Aesthetics**: Added scanline, glass, and neon UI styling.
+- **Campaign Themes**: Added themed progression sectors.
+- **Semantic Overhaul**: Refactored the app layout into specialized UI modules.
 
 #### Changed
-- **Documentation Alignment**: Synchronized `README.md` and UI hints with actual control schemes (WASD + Space + X/Shift).
-- **Scanline Refinement**: Optimized scanline animation speed and opacity for better legibility.
-- **Touch Target Optimization**: Enforced a minimum 44px/54px touch target size for all interactive UI elements in the Header, Editor, and Main Menu.
-- **Identification Layer**: Injected comprehensive unique `id` attributes across all primary UI components for enhanced analytics and selection reliability.
-- **Tactical Nomenclature**: Updated `CAMPAIGN_THEMES` to use immersive "Mission Control" sector designations (e.g., SECTOR_01: GREEN_HILLS_STABILITY).
-- **Metadata Polish**: Refined the application description in `metadata.json` to better align with the engine's cinematic platforming theme.
-
-#### Removed
-- **Unused Utilities**: Deleted `math.ts` and associated imports to reduce package bloat.
-- **Dead State & Types**: Purged `lastGeneratedCode`, `LEVEL_SELECT`, and `unlocked` fields to streamline state management and type definitions.
+- **Documentation Alignment**: Updated README and UI hints to match actual controls.
+- **Metadata Polish**: Refined the app description and game-facing copy.
 
 ### [1.7.4] - 2026-04-21
 
 #### Added
-- **Engine Config Refactor**: Centralized core game constants and tracking interfaces.
-- **Unified State Definitions**: Integrated `GameState` and `CampaignProgress` interfaces for strict type coverage.
-- **Static Asset Migration**: Moved `DEFAULT_LEVEL` and `CAMPAIGN_THEMES` to `constants.ts` for global accessibility.
-- **Enhanced Type Safety**: Refactored `GameCanvas.tsx` to utilize the new `GameState` interface, eliminating `any` usage.
+- **Engine Config Refactor**: Centralized game constants and shared interfaces.
+- **Unified State Definitions**: Integrated `GameState` and `CampaignProgress` interfaces.
+- **Static Asset Migration**: Moved `DEFAULT_LEVEL` and `CAMPAIGN_THEMES` into `constants.ts`.
 
 ### [1.7.3] - 2026-04-21
 
 #### Added
-- **MainMenu Modularization**: Refactored the extensive menu system into `MainMenu.tsx`.
-- **Enhanced AI Error Handling**: Implemented `generationError` state with user-facing alerts in the AI Forge.
-- **Improved Handle Logic**: Centralized generation handles with improved error catching and logging.
+- **MainMenu Modularization**: Split the menu logic into `MainMenu.tsx`.
+- **Enhanced AI Error Handling**: Added user-facing generation error states.
 
 ### [1.7.2] - 2026-04-21
 
 #### Added
-- **Restoration Complete**: Finished the reconstruction and bug-fix phase of the Mashup Engine.
-- **Component Modularization**: Successfully refactored the following components into dedicated source files:
-    - `Header.tsx`: Dynamic stats and navigation.
-    - `Footer.tsx`: Control hints and system stability telemetry.
-    - `LoadingOverlay.tsx`: AI Forge cinematic interface.
-    - `EditorToolbar.tsx`: Modular palette and tool selection for the level editor.
-    - `AbilityOverlay.tsx`: Real-time ability activation HUD notification.
-- **Utility Expansion**: Added `math.ts` for specialized geometric and interpolation algorithms.
-- **Documentation Integrity**: Added `CONTRIBUTING.md` and complete technical suite (9 Markdown, 8 HTML files).
+- **Restoration Complete**: Finished the reconstruction phase of the engine.
+- **Component Modularization**: Split UI into dedicated source files for layout, editor, and game features.
+- **Documentation Integrity**: Added `CONTRIBUTING.md` and technical docs.
 
 #### Fixed
-- **API Schema Stability**: Finalized the `LEVEL_SCHEMA` in `server.ts` to ensure compatibility with Gemini 1.5 Flash.
-- **Character Definitions**: Injected missing `description` metadata into all hero units.
-- **Vite Config Polish**: Fixed encoding typos and HMR configuration comments.
+- **API Schema Stability**: Finalized the `LEVEL_SCHEMA` for Gemini compatibility.
+- **Character Definitions**: Injected missing metadata into hero definitions.
 
 ### [1.7.1] - 2026-04-20
 
 #### Added
-- **50% HTML Initiative**: Migrated core structural UI elements (Scanlines, Static Grids) from React to semantic `index.html` for instant rendering.
-- **Static Documentation Suite**: Deployed a robust library of HTML technical manuals to the `public/` directory:
-    - `tech_specs.html`: System kernel and hardware processing specs.
-    - `lore.html`: Narrative archives on the origin of the Mashup Engine.
-    - `controls.html`: Semantic guide for input protocols.
-    - `api_reference.html`: Comprehensive technical documentation for developer integration.
-    - `archive_v1/v2.html`: Structural mapping data and coordinate logs.
-    - `sector_data.html`: Atmospheric and mapping telemetry.
-- **Data Link Integration**: Added a "System Data Link" hub in the footer for direct access to static HTML archives.
+- **50% HTML Initiative**: Migrated structural UI elements into semantic HTML.
+- **Static Technical Documentation**: Added HTML reference and archive pages.
 
 ### [1.7.0] - 2026-04-20
 
 #### Added
-- **Modern UI Overhaul**: Implemented a "Modern Technical Dashboard" aesthetic across all game screens.
-- **Enhanced Mission Success/Failure**: Redesigned End screens with high-intensity scanlines, tech-borders, and cinematic statistics display.
-- **Orbital AI Generation Terminal**: New loading screen for Gemini level construction with animated orbital scanners and progress logs.
-- **Engine Footer**: Added a real-time status footer with control hints and system stability indicators.
-- **DOM Modernization**: Injected unique IDs across all UI components for better organization and reliability.
-- **Version Calibration**: Synchronized all internal engine version strings to V1.8.0.
+- **Modern UI Overhaul**: Polished the Mission Control dashboard aesthetic.
+- **Enhanced Mission Success/Failure**: Added cinematic end states and overlays.
+- **Orbital AI Generation Terminal**: Added a loading interface during level construction.
 
 #### Fixed
-- **Background Grid CSS**: Resolved a rendering issue in the background grid by correcting CSS property names.
-- **UI Consistency**: Standardized typography and borders to a military-grade "Mission Control" theme.
+- **Background Grid CSS**: Corrected the CSS layout issue for the overlay grid.
+- **UI Consistency**: Standardized the game and dashboard styling.
 
 ## [1.6.0] - 2026-04-20
 
 ### Fixed & Improved
-- **Win Condition Reliability**: Updated physics engine to correctly trigger a "Win" state when touching Goal tiles from any angle (sides or top).
-- **Event Synchronization**: Added a `isFinished` state guard to block duplicate "Win" or "Game Over" events within the same frame.
-- **Character Selection Polish**: Enhanced the hero selection menu with active badges and character-specific selection text.
-- **Physics Stability**: Refined horizontal collision resolution to prevent tile jittering during high-speed movement.
-- **Linter Cleanup**: Resolved all remaining static analysis warnings and missing icon imports.
+- **Win Condition Reliability**: Updated the physics engine to trigger win states properly.
+- **Event Synchronization**: Prevented duplicate win/game-over callbacks.
+- **Character Selection Polish**: Improved the hero selection flow.
+- **Physics Stability**: Reduced jitter during high-speed movement.
 
 ## [1.5.0] - 2026-04-20
 
 ### Added
-- **Smarter Goomba AI**: Implemented ledge detection for Goombas. They now intelligently reverse direction instead of walking off platforms into pits.
-- **Improved Patrolling**: Refined enemy physics to support indefinite pacing between boundaries (walls or ledges).
+- **Smarter Goomba AI**: Added edge detection and directional reversal logic.
+- **Improved Patrolling**: Refined enemy boundary behavior.
 
 ## [1.4.0] - 2026-04-20
 
 ### Added
-- **Procedural Character Animations**: Added dynamic animations for idle (bobbing), running (limb swinging), and jumping (pose change) states.
-- **Enhanced Ability Visuals**: Implemented rotating spin for Mario, ghostly trails for Luigi, and a shimmering shield for Peach.
-- **Full-Stack Security Migration**: Moved Gemini AI level generation to a secure Express backend to protect API keys and improve robustness.
-- **Improved AI Thematics**: Campaign levels now feature 10 distinct themes (Lava, Snow, Sky, etc.) with progressive difficulty prompts.
+- **Procedural Character Animations**: Added idle/run/jump visuals.
+- **Enhanced Ability Visuals**: Added ability-specific effects for character actions.
+- **Full-Stack Security Migration**: Moved Gemini generation behind the Express backend.
 
 ## [1.3.0] - 2026-04-20
 
 ### Added
-- **Dynamic Camera System**: Implemented threat-aware camera logic that weights focus between the player and nearby enemies.
-- **Editor Productivity Shortcuts**:
-    - `Tab` to switch between Tile and Entity tools.
-    - `[` / `]` to cycle through selected assets.
-    - `1-9` for direct tool selection.
-- **Safety Physics**: Fixed a bug where dash abilities could phase players through solid blocks.
+- **Dynamic Camera System**: Added threat-aware camera logic.
+- **Editor Productivity Shortcuts**: Added tab/selection shortcuts.
+- **Safety Physics**: Fixed dash phasing through solid blocks.
 
 ## [1.2.0] - 2026-04-20
 
 ### Added
-- **Level Sharing System**: Implemented level serialization and deserialization using Base64.
-- **Improved Sharing UI**: Added a visible code display in the editor with "Copy" feedback.
-- **Loading Interface**: Added an input field in the main menu to load and play levels via shared codes.
-- **Campaign Mode Progression**: Added a visual progression bar and enhanced World-Level naming (e.g., World 1-1).
-- **Campaign Stats**: Implemented cumulative scoring and a "Grand Total" display on Game Over/Win screens.
-- **Refined AI Logic**: Handled level generation with difficulty scaling based on campaign progress.
+- **Level Sharing System**: Implemented share code serialization.
+- **Campaign Mode Progression**: Added visual progress tracking and score totals.
 
 ## [1.1.0] - 2026-04-20
 
 ### Added
-- **Multi-Level Campaign**: Implemented a sequence of AI-driven levels that progress as you win.
-- **Campaign Difficulty Scaling**: Gemini now generates harder levels with more hazards as the campaign progresses.
-- **Generation Overlay**: Added a "Gemini is Constructing..." visual transition during AI level building.
-- **HUD Enhancements**: Real-time tracking of scores, coins, and character-specific cooldowns.
+- **Multi-Level Campaign**: Added progressive AI-driven level sequence.
+- **Campaign Difficulty Scaling**: Increased hazards and complexity over time.
+- **Generation Overlay**: Added loading state during AI generation.
 
 ## [1.0.0] - 2026-04-20
 
 ### Added
-- **Initial Release**: Core game engine with HTML5 Canvas.
-- **AI Level Generation**: Integration with Gemini 1.5 Flash for prompt-based level design.
-- **Character Selection**: Playable Mario, Luigi, Toad, and Peach with custom abilities.
-- **Level Editor**: Basic grid-based editor for tiles and entities.
-- **Core Entities**: Implemented Goombas, Coins, and Mushrooms.
-- **Physics Engine**: Solid tile collisions and momentum-based player movement.
-- **UI & Themes**: Retro-inspired dashboard using Tailwind CSS and motion.
+- **Initial Release**: Initial engine with AI-driven level generation and editor tools.
+- **Character Selection**: Added Mario, Luigi, Toad, and Peach.
+- **Physics Engine**: Added movement, collisions, and platforming logic.
+- **UI & Themes**: Added the retro tech dashboard visual style.
