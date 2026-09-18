@@ -1,13 +1,19 @@
 @import "tailwindcss";
 
 @theme {
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 @layer base {
+  html {
+    background-color: #050505;
+  }
+
   body {
-    @apply bg-[#050505] text-white overflow-hidden;
-    background-image: 
+    @apply min-h-screen bg-[#050505] text-white;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-image:
       linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
       linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
     background-size: 32px 32px;
@@ -15,135 +21,218 @@
 }
 
 @layer components {
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
 
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05);
+  }
+
   .custom-scrollbar::-webkit-scrollbar {
-    height: 6px;
     width: 6px;
+    height: 6px;
   }
+
   .custom-scrollbar::-webkit-scrollbar-track {
-    @apply bg-white/5 rounded-full;
+    @apply rounded-full bg-white/5;
   }
+
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-white/20 rounded-full hover:bg-white/30 transition-all;
+    @apply rounded-full bg-white/20;
+    transition: background-color 150ms ease;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-white/30;
   }
 
   .glass-panel {
-    @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl;
+    @apply border border-white/10 bg-white/5 shadow-2xl backdrop-blur-xl;
   }
 
   .tech-border {
-    @apply border border-white/10 relative transition-all duration-300;
+    @apply relative border border-white/10 transition-all duration-300;
   }
-  .tech-border::before, .tech-border::after,
-  .tech-border-corner-tr::before, .tech-border-corner-bl::after {
-    content: '';
-    @apply absolute w-4 h-4 transition-all duration-300;
-    pointer-events: none;
-  }
-  
-  /* Top Left */
-  .tech-border::before {
-    @apply -top-[1px] -left-[1px] border-t-2 border-l-2 border-blue-500/50 rounded-tl-sm;
-  }
-  /* Bottom Right */
+
+  .tech-border::before,
   .tech-border::after {
-    @apply -bottom-[1px] -right-[1px] border-b-2 border-r-2 border-red-500/50 rounded-br-sm;
+    content: "";
+    position: absolute;
+    width: 1rem;
+    height: 1rem;
+    pointer-events: none;
+    transition:
+      border-color 300ms ease,
+      border-width 300ms ease;
   }
-  
-  .tech-border:hover::before { @apply border-blue-400 border-t-4 border-l-4; }
-  .tech-border:hover::after { @apply border-red-400 border-b-4 border-r-4; }
+
+  .tech-border::before {
+    @apply -top-px -left-px rounded-tl-sm border-t-2 border-l-2 border-blue-500/50;
+  }
+
+  .tech-border::after {
+    @apply -right-px -bottom-px rounded-br-sm border-r-2 border-b-2 border-red-500/50;
+  }
+
+  .tech-border:hover::before {
+    @apply border-t-4 border-l-4 border-blue-400;
+  }
+
+  .tech-border:hover::after {
+    @apply border-r-4 border-b-4 border-red-400;
+  }
 
   .noise-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: url('https://grainy-gradients.vercel.app/noise.svg');
-    opacity: 0.05;
-    pointer-events: none;
+    inset: 0;
     z-index: 999;
+    pointer-events: none;
+    opacity: 0.05;
     mix-blend-mode: overlay;
+    background-image: url("/noise.svg");
+    background-repeat: repeat;
   }
 
   .glitch-text {
     position: relative;
     display: inline-block;
+    isolation: isolate;
   }
-  .glitch-text::before, .glitch-text::after {
+
+  .glitch-text::before,
+  .glitch-text::after {
     content: attr(data-text);
     position: absolute;
-    top: 0;
-    left: 0;
+    inset: 0;
+    z-index: -1;
     width: 100%;
     height: 100%;
-    background: inherit;
-    clip: rect(0, 0, 0, 0);
+    pointer-events: none;
+    opacity: 0;
   }
+
   .glitch-text:hover::before {
     left: 2px;
+    opacity: 1;
+    color: inherit;
     text-shadow: -2px 0 #ff00c1;
-    clip: rect(44px, 450px, 56px, 0);
-    animation: glitch-anim 5s infinite linear alternate-reverse;
+    clip-path: inset(44px 0 0 0);
+    animation: glitch-anim 500ms steps(2, end) infinite alternate-reverse;
   }
+
   .glitch-text:hover::after {
     left: -2px;
+    opacity: 1;
+    color: inherit;
     text-shadow: -2px 0 #00fff9, 2px 2px #ff00c1;
-    clip: rect(44px, 450px, 56px, 0);
-    animation: glitch-anim2 5s infinite linear alternate-reverse;
-  }
-
-  @keyframes glitch-anim {
-    0% { clip: rect(31px, 9999px, 94px, 0); }
-    20% { clip: rect(62px, 9999px, 42px, 0); }
-    40% { clip: rect(16px, 9999px, 78px, 0); }
-    60% { clip: rect(58px, 9999px, 13px, 0); }
-    80% { clip: rect(93px, 9999px, 24px, 0); }
-    100% { clip: rect(47px, 9999px, 69px, 0); }
-  }
-
-  @keyframes glitch-anim2 {
-    0% { clip: rect(65px, 9999px, 100px, 0); }
-    20% { clip: rect(12px, 9999px, 56px, 0); }
-    40% { clip: rect(82px, 9999px, 19px, 0); }
-    60% { clip: rect(24px, 9999px, 85px, 0); }
-    80% { clip: rect(51px, 9999px, 43px, 0); }
-    100% { clip: rect(36px, 9999px, 72px, 0); }
+    clip-path: inset(44px 0 0 0);
+    animation: glitch-anim-2 500ms steps(2, end) infinite alternate-reverse;
   }
 
   .tech-glow-red {
-    @apply shadow-[0_0_20px_rgba(220,38,38,0.4)] hover:shadow-[0_0_35px_rgba(220,38,38,0.6)] transition-all;
-  }
-  .tech-glow-blue {
-    @apply shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_35px_rgba(59,130,246,0.6)] transition-all;
-  }
-  
-  .scanline {
-    width: 100%;
-    height: 100px;
-    z-index: 1000;
-    background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(255, 255, 255, 0.05) 50%, rgba(0, 0, 0, 0) 100%);
-    opacity: 0.15;
-    position: fixed;
-    bottom: 100%;
-    pointer-events: none;
-    animation: scanline 6s linear infinite;
+    @apply shadow-[0_0_20px_rgba(220,38,38,0.4)] transition-shadow duration-300;
   }
 
-  @keyframes scanline {
-    0% { bottom: 100%; }
-    100% { bottom: -100%; }
+  .tech-glow-red:hover {
+    @apply shadow-[0_0_35px_rgba(220,38,38,0.6)];
+  }
+
+  .tech-glow-blue {
+    @apply shadow-[0_0_20px_rgba(59,130,246,0.4)] transition-shadow duration-300;
+  }
+
+  .tech-glow-blue:hover {
+    @apply shadow-[0_0_35px_rgba(59,130,246,0.6)];
+  }
+
+  .scanline {
+    position: fixed;
+    right: 0;
+    bottom: 100%;
+    left: 0;
+    z-index: 1000;
+    width: 100%;
+    height: 100px;
+    pointer-events: none;
+    opacity: 0.15;
+    background: linear-gradient(
+      0deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.05) 50%,
+      transparent 100%
+    );
+    animation: scanline 6s linear infinite;
   }
 
   .image-pixelated {
     image-rendering: pixelated;
+    image-rendering: crisp-edges;
   }
 }
 
+@keyframes glitch-anim {
+  0% {
+    clip-path: inset(31px 0 6px 0);
+  }
+
+  20% {
+    clip-path: inset(42px 0 58px 0);
+  }
+
+  40% {
+    clip-path: inset(16px 0 22px 0);
+  }
+
+  60% {
+    clip-path: inset(58px 0 13px 0);
+  }
+
+  80% {
+    clip-path: inset(93px 0 0 0);
+  }
+
+  100% {
+    clip-path: inset(47px 0 31px 0);
+  }
+}
+
+@keyframes glitch-anim-2 {
+  0% {
+    clip-path: inset(65px 0 0 0);
+  }
+
+  20% {
+    clip-path: inset(12px 0 44px 0);
+  }
+
+  40% {
+    clip-path: inset(82px 0 19px 0);
+  }
+
+  60% {
+    clip-path: inset(24px 0 15px 0);
+  }
+
+  80% {
+    clip-path: inset(51px 0 43px 0);
+  }
+
+  100% {
+    clip-path: inset(36px 0 28px 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scanline,
+  .glitch-text:hover::before,
+  .glitch-text:hover::after {
+    animation: none;
+  }
+}
