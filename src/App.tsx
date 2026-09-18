@@ -3,154 +3,439 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
-import { GameMode, CharacterType, LevelData, GameState, CampaignProgress } from './core/types';
-import { CHARACTERS, DEFAULT_LEVEL, CAMPAIGN_THEMES } from './core/constants';
-import { useControls } from './hooks/useControls';
-import { GameCanvas } from './components/game/GameCanvas';
-import { Header } from './components/layout/Header';
-import { Footer } from './components/layout/Footer';
-import { LoadingOverlay } from './components/common/LoadingOverlay';
-import { AbilityOverlay } from './components/game/AbilityOverlay';
-import { Editor } from './components/editor/Editor';
-import { MainMenu } from './components/menu/MainMenu';
-import { generateLevel } from './services/geminiService';
-import { serializeLevel, deserializeLevel } from './utils/levelSerialization';
-import { motion, AnimatePresence } from 'motion/react';
-import { 
-  Play, RefreshCw, Trophy, 
-  AlertCircle, Star, Coins, User, Settings
-} from 'lucide-react';
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
+import {
+  AlertCircle,
+  Coins,
+  Play,
+  RefreshCw,
+  Settings,
+  Star,
+  Trophy,
+  User,
+} from "lucide-react";
+
+import {
+  CampaignProgress,
+  CharacterType,
+  GameMode,
+  GameState,
+  LevelData,
+} from "./core/types";
+import {
+  CAMPAIGN_THEMES,
+  CHARACTERS,
+  DEFAULT_LEVEL,
+} from "./core/constants";
+import { useControls } from "./hooks/useControls";
+import { GameCanvas } from "./components/game/GameCanvas";
+import { Header } from "./components/layout/Header";
+import { Footer } from "./components/layout/Footer";
+import { LoadingOverlay } from "./components/common/LoadingOverlay";
+import { AbilityOverlay } from "./components/game/AbilityOverlay";
+import { Editor } from "./components/editor/Editor";
+import { MainMenu } from "./components/menu/MainMenu";
+import { generateLevel } from "./services/geminiService";
+import {
+  deserializeLevel,
+  serializeLevel,
+} from "./utils/levelSerialization";
+
+const TOTAL_CAMPAIGN_LEVELS = 10;
+
+const INITIAL_GAME_STATE: GameState = {
+  score: 0,
+  coins: 0,
+  player: null,
+};
+
+const INITIAL_CAMPAIGN_PROGRESS: CampaignProgress = {
+  currentLevel: 0,
+  totalScore: 0,
+};
+
+type StatusMessage = {
+  text: string;
+  type: "ALERT" | "SUCCESS" | "INFO";
+};
+
+function getAbilityProgress(
+  cooldown: number | undefined,
+  maximumCooldown: number | undefined,
+) {
+  if (!cooldown || !maximumCooldown || maximumCooldown <= 0) {
+    return 100;
+  }
+
+  const progress = (1 - cooldown / maximumCooldown) * 100;
+  return Math.min(100, Math.max(0, progress));
+}
 
 export default function App() {
-  const [mode, setMode] = useState<GameMode>('MENU');
-  const [character, setCharacter] = useState<CharacterType>('MARIO');
+  const [mode, setMode] = useState<GameMode>("MENU");
+  const [character, setCharacter] = useState<CharacterType>("MARIO");
   const [levelData, setLevelData] = useState<LevelData>(DEFAULT_LEVEL);
-  const [gameState, setGameState] = useState<GameState>({ score: 0, coins: 0, player: null });
+  const [gameState, setGameState] =
+    useState<GameState>(INITIAL_GAME_STATE);
   const [isGenerating, setIsGenerating] = useState(false);
   const [prompt, setPrompt] = useState("");
-  const [generationError, setGenerationError] = useState<string | null>(null);
+  const [generationError, setGenerationError] = useState<string | null>(
+    null,
+  );
   const [shareCode, setShareCode] = useState("");
-  const [campaignProgress, setCampaignProgress] = useState<CampaignProgress>({ currentLevel: 0, totalScore: 0 });
-  const [statusMessage, setStatusMessage] = useState<{ text: string, type: 'ALERT' | 'SUCCESS' | 'INFO' } | null>(null);
+  const [campaignProgress, setCampaignProgress] =
+    useState<CampaignProgress>(INITIAL_CAMPAIGN_PROGRESS);
+  const [statusMessage, setStatusMessage] =
+    useState<StatusMessage | null>(null);
+
+  const generationRequestId = useRef(0);
+  const hasLoadedCampaignProgress = useRef(false);
   const { controls } = useControls();
 
-  // Clear status after timeout
   useEffect(() => {
-    if (statusMessage) {
-      const timer = setTimeout(() => setStatusMessage(null), 3000);
-      return () => clearTimeout(timer);
+    if (!statusMessage) {
+      return;
     }
+
+    const timer = window.setTimeout(() => {
+      setStatusMessage(null);
+    }, 3000);
+
+    return () => window.clearTimeout(timer);
   }, [statusMessage]);
 
-  // Persistence: Load on mount
   useEffect(() => {
-    const saved = localStorage.getItem('campaign-progress');
-    if (saved) {
-      try {
-        setCampaignProgress(JSON.parse(saved));
-      } catch (e) {
-        console.error('Failed to load campaign progress:', e);
+    try {
+      const savedProgress = window.localStorage.getItem(
+        "campaign-progress",
+      );
+
+      if (!savedProgress) {
+        return;
       }
+
+      const parsedProgress = JSON.parse(savedProgress) as CampaignProgress;
+
+      if (
+        typeof parsedProgress.currentLevel === "number" &&
+        typeof parsedProgress.totalScore === "number"
+      ) {
+        setCampaignProgress(parsedProgress);
+      }
+    } catch (error) {
+      console.error("Failed to load campaign progress:", error);
+    } finally {
+      hasLoadedCampaignProgress.current = true;
     }
   }, []);
 
-  // Persistence: Save on change
   useEffect(() => {
-    localStorage.setItem('campaign-progress', JSON.stringify(campaignProgress));
+    if (!hasLoadedCampaignProgress.current) {
+      return;
+    }
+
+    try {
+      window.localStorage.setItem(
+        "campaign-progress",
+        JSON.stringify(campaignProgress),
+      );
+    } catch (error) {
+      console.error("Failed to save campaign progress:", error);
+    }
   }, [campaignProgress]);
 
+  const resetGameState = () => {
+    setGameState(INITIAL_GAME_STATE);
+  };
+
   const handleStartGame = () => {
-    setMode('PLAY');
-    setGameState({ score: 0, coins: 0, player: null });
+    generationRequestId.current += 1;
+    setGenerationError(null);
+    setMode("PLAY");
+    resetGameState();
   };
 
   const startCampaign = async () => {
-    setMode('CAMPAIGN');
-    const firstLevel = await generateLevel("A welcoming first level with green hills and few enemies", 0);
-    if (firstLevel) {
+    const requestId = generationRequestId.current + 1;
+    generationRequestId.current = requestId;
+
+    setIsGenerating(true);
+    setGenerationError(null);
+    setCampaignProgress(INITIAL_CAMPAIGN_PROGRESS);
+    resetGameState();
+
+    try {
+      const firstLevel = await generateLevel(
+        "A welcoming first level with green hills and few enemies",
+        0,
+      );
+
+      if (requestId !== generationRequestId.current) {
+        return;
+      }
+
+      if (!firstLevel) {
+        setMode("MENU");
+        setGenerationError(
+          "FORGE_FAILURE: Initial campaign level could not be generated.",
+        );
+        setStatusMessage({
+          text: "CAMPAIGN_INITIALIZATION_FAILED",
+          type: "ALERT",
+        });
+        return;
+      }
+
       setLevelData(firstLevel);
-      setGameState({ score: 0, coins: 0, player: null });
+      setMode("CAMPAIGN");
+      setStatusMessage({
+        text: "CAMPAIGN_INITIALIZED",
+        type: "SUCCESS",
+      });
+    } catch (error) {
+      console.error("Failed to start campaign:", error);
+
+      if (requestId === generationRequestId.current) {
+        setMode("MENU");
+        setGenerationError(
+          "FORGE_CRITICAL: Campaign neural link severed.",
+        );
+        setStatusMessage({
+          text: "CAMPAIGN_INITIALIZATION_FAILED",
+          type: "ALERT",
+        });
+      }
+    } finally {
+      if (requestId === generationRequestId.current) {
+        setIsGenerating(false);
+      }
     }
   };
 
   const handleFinishLevel = async () => {
-    if (mode === 'CAMPAIGN') {
-      const nextLevelIdx = campaignProgress.currentLevel + 1;
-      
-      if (nextLevelIdx >= 10) {
-        setCampaignProgress(prev => ({
-          ...prev,
-          totalScore: prev.totalScore + gameState.score
-        }));
-        setMode('WIN');
+    if (mode !== "CAMPAIGN") {
+      setMode("WIN");
+      return;
+    }
+
+    const completedScore = gameState.score;
+    const nextLevelIndex = campaignProgress.currentLevel + 1;
+
+    if (nextLevelIndex >= TOTAL_CAMPAIGN_LEVELS) {
+      setCampaignProgress((previous) => ({
+        ...previous,
+        totalScore: previous.totalScore + completedScore,
+      }));
+      setMode("WIN");
+      return;
+    }
+
+    const requestId = generationRequestId.current + 1;
+    generationRequestId.current = requestId;
+
+    setIsGenerating(true);
+    setGenerationError(null);
+
+    try {
+      const theme =
+        CAMPAIGN_THEMES[nextLevelIndex] ??
+        "progressive difficulty world";
+
+      const nextLevel = await generateLevel(
+        `A ${theme} level, difficulty: ${nextLevelIndex + 1}/${TOTAL_CAMPAIGN_LEVELS}`,
+        nextLevelIndex,
+      );
+
+      if (requestId !== generationRequestId.current) {
         return;
       }
 
-      setIsGenerating(true);
-      
-      const theme = CAMPAIGN_THEMES[nextLevelIdx] || "progressive difficulty world";
-      const nextLevel = await generateLevel(`A ${theme} level, difficulty: ${nextLevelIdx}/10`, nextLevelIdx);
-      
-      if (nextLevel) {
-        setCampaignProgress(prev => ({
-          ...prev,
-          currentLevel: nextLevelIdx,
-          totalScore: prev.totalScore + gameState.score
-        }));
-        setLevelData(nextLevel);
-        setGameState(prev => ({ ...prev, score: 0, coins: 0 }));
-      } else {
-        setGenerationError("FORGE_FAILURE: Level reconstruction failed. Retrying...");
+      if (!nextLevel) {
+        setGenerationError(
+          "FORGE_FAILURE: Next sector reconstruction failed.",
+        );
+        setStatusMessage({
+          text: "NEXT_SECTOR_GENERATION_FAILED",
+          type: "ALERT",
+        });
+        return;
       }
-      setIsGenerating(false);
-    } else {
-      setMode('WIN');
+
+      setCampaignProgress((previous) => ({
+        currentLevel: nextLevelIndex,
+        totalScore: previous.totalScore + completedScore,
+      }));
+      setLevelData(nextLevel);
+      resetGameState();
+      setStatusMessage({
+        text: `SECTOR_${nextLevelIndex + 1}_LOADED`,
+        type: "SUCCESS",
+      });
+    } catch (error) {
+      console.error("Failed to generate next campaign level:", error);
+
+      if (requestId === generationRequestId.current) {
+        setGenerationError(
+          "FORGE_CRITICAL: Next sector neural link severed.",
+        );
+        setStatusMessage({
+          text: "NEXT_SECTOR_GENERATION_FAILED",
+          type: "ALERT",
+        });
+      }
+    } finally {
+      if (requestId === generationRequestId.current) {
+        setIsGenerating(false);
+      }
     }
   };
 
   const handleLoadCode = () => {
-    const loaded = deserializeLevel(shareCode);
-    if (loaded) {
-      setLevelData(loaded);
-      handleStartGame();
-      setStatusMessage({ text: 'MISSION_DATA_SYNCED', type: 'SUCCESS' });
-    } else {
-      setStatusMessage({ text: 'ERR_INVALID_CODE_LINK', type: 'ALERT' });
+    const loadedLevel = deserializeLevel(shareCode.trim());
+
+    if (!loadedLevel) {
+      setStatusMessage({
+        text: "ERR_INVALID_CODE_LINK",
+        type: "ALERT",
+      });
+      return;
+    }
+
+    generationRequestId.current += 1;
+    setLevelData(loadedLevel);
+    setGenerationError(null);
+    setMode("PLAY");
+    resetGameState();
+
+    setStatusMessage({
+      text: "MISSION_DATA_SYNCED",
+      type: "SUCCESS",
+    });
+  };
+
+  const copyTextToClipboard = async (
+    text: string,
+    successMessage: string,
+  ) => {
+    try {
+      if (!navigator.clipboard?.writeText) {
+        throw new Error("Clipboard API is unavailable.");
+      }
+
+      await navigator.clipboard.writeText(text);
+
+      setStatusMessage({
+        text: successMessage,
+        type: "SUCCESS",
+      });
+
+      return true;
+    } catch (error) {
+      console.error("Clipboard write failed:", error);
+
+      setStatusMessage({
+        text: "ERR_CLIPBOARD_ACCESS_DENIED",
+        type: "ALERT",
+      });
+
+      return false;
     }
   };
 
-  const generateShareCode = () => {
+  const generateShareCode = async () => {
     const code = serializeLevel(levelData);
     setShareCode(code);
-    navigator.clipboard.writeText(code);
-    setStatusMessage({ text: 'SECTOR_DATA_COPIED', type: 'SUCCESS' });
+
+    await copyTextToClipboard(code, "SECTOR_DATA_COPIED");
+  };
+
+  const handleEditorShare = async (code: string) => {
+    setShareCode(code);
+    await copyTextToClipboard(code, "SECTOR_DATA_COPIED");
   };
 
   const handleGenerateLevel = async () => {
+    const requestId = generationRequestId.current + 1;
+    generationRequestId.current = requestId;
+
     setIsGenerating(true);
     setGenerationError(null);
+
     try {
-      const newLevel = await generateLevel(prompt || "a fun mario level with pipes and coins");
-      if (newLevel) {
-        setLevelData(newLevel);
-      } else {
-        setGenerationError("FORGE_FAILURE: Level reconstruction failed.");
+      const newLevel = await generateLevel(
+        prompt.trim() || "A fun platform level with pipes and coins",
+      );
+
+      if (requestId !== generationRequestId.current) {
+        return;
       }
+
+      if (!newLevel) {
+        setGenerationError(
+          "FORGE_FAILURE: Level reconstruction failed.",
+        );
+        return;
+      }
+
+      setLevelData(newLevel);
+      setStatusMessage({
+        text: "LEVEL_FORGED",
+        type: "SUCCESS",
+      });
     } catch (error) {
-      console.error(error);
-      setGenerationError("FORGE_CRITICAL: Neural link severed.");
+      console.error("Level generation failed:", error);
+
+      if (requestId === generationRequestId.current) {
+        setGenerationError(
+          "FORGE_CRITICAL: Neural link severed.",
+        );
+      }
     } finally {
-      setIsGenerating(false);
+      if (requestId === generationRequestId.current) {
+        setIsGenerating(false);
+      }
     }
   };
 
+  const handleReplay = () => {
+    generationRequestId.current += 1;
+    setGenerationError(null);
+    resetGameState();
+
+    if (mode === "WIN" && campaignProgress.currentLevel > 0) {
+      setMode("CAMPAIGN");
+      return;
+    }
+
+    setMode("PLAY");
+  };
+
+  const handleReturnToMenu = () => {
+    generationRequestId.current += 1;
+    setIsGenerating(false);
+    setGenerationError(null);
+    setMode("MENU");
+  };
+
+  const isCampaignMode = mode === "CAMPAIGN";
+  const isEndScreen = mode === "GAME_OVER" || mode === "WIN";
+
+  const campaignLevelNumber = campaignProgress.currentLevel + 1;
+  const campaignPercentage =
+    (campaignLevelNumber / TOTAL_CAMPAIGN_LEVELS) * 100;
+
+  const selectedCharacter = CHARACTERS[character];
+  const abilityProgress = getAbilityProgress(
+    gameState.player?.abilityCooldown,
+    selectedCharacter.abilityCooldown,
+  );
+
   return (
-    <div className="min-h-screen text-white font-mono selection:bg-blue-600 selection:text-white relative overflow-hidden">
-      <div className="noise-overlay" />
-      <div className="scanline" />
-      {/* Header handled by React components for dynamic state */}
-      {/* Status Overlay */}
+    <div className="relative min-h-screen overflow-hidden font-mono text-white selection:bg-blue-600 selection:text-white">
+      <div className="noise-overlay" aria-hidden="true" />
+      <div className="scanline" aria-hidden="true" />
+
       <AnimatePresence>
         {statusMessage && (
           <motion.div
@@ -158,39 +443,56 @@ export default function App() {
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            className="fixed bottom-12 right-12 z-[300] flex flex-col gap-2 pointer-events-none"
+            className="pointer-events-none fixed right-4 bottom-4 z-[300] flex flex-col gap-2 sm:right-12 sm:bottom-12"
+            role="status"
+            aria-live="polite"
           >
-             <div className={`px-6 py-3 rounded-2xl border backdrop-blur-xl flex items-center gap-4 ${
-               statusMessage.type === 'ALERT' ? 'bg-red-950/80 border-red-500/50 text-red-500' : 
-               statusMessage.type === 'SUCCESS' ? 'bg-green-950/80 border-green-500/50 text-green-500' : 
-               'bg-blue-950/80 border-blue-500/50 text-blue-500'
-             }`}>
-                <div className={`w-2 h-2 rounded-full animate-pulse ${
-                  statusMessage.type === 'ALERT' ? 'bg-red-500' : 
-                  statusMessage.type === 'SUCCESS' ? 'bg-green-500' : 'bg-blue-500'
-                }`} />
-                <span className="text-xs font-black uppercase tracking-widest">{statusMessage.text}</span>
-             </div>
+            <div
+              className={`flex items-center gap-4 rounded-2xl border px-6 py-3 backdrop-blur-xl ${
+                statusMessage.type === "ALERT"
+                  ? "border-red-500/50 bg-red-950/80 text-red-500"
+                  : statusMessage.type === "SUCCESS"
+                    ? "border-green-500/50 bg-green-950/80 text-green-500"
+                    : "border-blue-500/50 bg-blue-950/80 text-blue-500"
+              }`}
+            >
+              <div
+                className={`h-2 w-2 animate-pulse rounded-full ${
+                  statusMessage.type === "ALERT"
+                    ? "bg-red-500"
+                    : statusMessage.type === "SUCCESS"
+                      ? "bg-green-500"
+                      : "bg-blue-500"
+                }`}
+                aria-hidden="true"
+              />
+              <span className="text-xs font-black uppercase tracking-widest">
+                {statusMessage.text}
+              </span>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <Header 
-        mode={mode} 
-        coins={gameState.coins} 
-        score={gameState.score} 
-        onExit={() => setMode('MENU')} 
+      <Header
+        mode={mode}
+        coins={gameState.coins}
+        score={gameState.score}
+        onExit={handleReturnToMenu}
       />
 
-      <main id="app-main-content" className="max-w-7xl mx-auto p-6 space-y-8 relative">
-        <LoadingOverlay 
-          isVisible={isGenerating} 
-          currentLevel={campaignProgress.currentLevel} 
+      <main
+        id="app-main-content"
+        className="relative mx-auto max-w-7xl space-y-8 p-6"
+      >
+        <LoadingOverlay
+          isVisible={isGenerating}
+          currentLevel={campaignProgress.currentLevel}
         />
 
         <AnimatePresence mode="wait">
-          {mode === 'MENU' && (
-            <MainMenu 
+          {mode === "MENU" && (
+            <MainMenu
               character={character}
               setCharacter={setCharacter}
               handleStartGame={handleStartGame}
@@ -207,8 +509,8 @@ export default function App() {
             />
           )}
 
-          {(mode === 'PLAY' || mode === 'CAMPAIGN') && (
-            <motion.div 
+          {(mode === "PLAY" || mode === "CAMPAIGN") && (
+            <motion.div
               key={mode}
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -216,259 +518,433 @@ export default function App() {
               className="space-y-6"
             >
               <section className="flex flex-col gap-4">
-                {mode === 'CAMPAIGN' && (
-                  <div className="px-2 space-y-2" role="progressbar" aria-valuenow={campaignProgress.currentLevel + 1} aria-valuemin={1} aria-valuemax={10}>
-                    <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-white/40">
+                {isCampaignMode && (
+                  <div
+                    className="space-y-2 px-2"
+                    role="progressbar"
+                    aria-label="Campaign progression"
+                    aria-valuenow={campaignLevelNumber}
+                    aria-valuemin={1}
+                    aria-valuemax={TOTAL_CAMPAIGN_LEVELS}
+                  >
+                    <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-white/40">
                       <span>World Progression</span>
-                      <span className="text-yellow-500">Level {campaignProgress.currentLevel + 1} / 10</span>
+                      <span className="text-yellow-500">
+                        Level {campaignLevelNumber} / {TOTAL_CAMPAIGN_LEVELS}
+                      </span>
                     </div>
-                    <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
-                      <motion.div 
+
+                    <div className="h-1.5 w-full overflow-hidden rounded-full border border-white/5 bg-white/5">
+                      <motion.div
                         initial={{ width: 0 }}
-                        animate={{ width: `${((campaignProgress.currentLevel + 1) / 10) * 100}%` }}
-                        className="h-full bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)] transition-all duration-500"
+                        animate={{ width: `${campaignPercentage}%` }}
+                        className="h-full bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)]"
                       />
                     </div>
                   </div>
                 )}
 
-                <header className="flex justify-between items-end px-2">
+                <header className="flex items-end justify-between px-2">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      {mode === 'CAMPAIGN' && <Trophy size={14} className="text-yellow-500" aria-hidden="true" />}
-                      <span className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] block">
-                        {mode === 'CAMPAIGN' ? `Campaign Mode` : 'Active Mission'}
+                      {isCampaignMode && (
+                        <Trophy
+                          size={14}
+                          className="text-yellow-500"
+                          aria-hidden="true"
+                        />
+                      )}
+
+                      <span className="block text-[10px] font-bold uppercase tracking-[0.2em] text-white/40">
+                        {isCampaignMode ? "Campaign Mode" : "Active Mission"}
                       </span>
                     </div>
-                    <h2 className="text-3xl font-black italic uppercase leading-none">
-                      {mode === 'CAMPAIGN' ? `World ${Math.floor(campaignProgress.currentLevel / 4) + 1}-${(campaignProgress.currentLevel % 4) + 1}` : 'Mushroom Kingdom'}
+
+                    <h2 className="text-3xl leading-none font-black italic uppercase">
+                      {isCampaignMode
+                        ? `World ${Math.floor(campaignProgress.currentLevel / 4) + 1}-${(campaignProgress.currentLevel % 4) + 1}`
+                        : "Mushroom Kingdom"}
                     </h2>
                   </div>
-                  {mode === 'CAMPAIGN' && (
-                    <div className="text-right space-y-1">
+
+                  {isCampaignMode && (
+                    <div className="space-y-1 text-right">
                       <div className="flex flex-col items-end">
-                        <p className="text-[8px] font-black uppercase text-white/30 tracking-widest">Grand Total</p>
-                        <motion.p 
-                          key={campaignProgress.totalScore}
-                          initial={{ scale: 1.2, color: '#fff' }}
-                          animate={{ scale: 1, color: '#eab308' }}
+                        <p className="text-[8px] font-black uppercase tracking-widest text-white/30">
+                          Grand Total
+                        </p>
+
+                        <motion.p
+                          key={campaignProgress.totalScore + gameState.score}
+                          initial={{ scale: 1.2, color: "#fff" }}
+                          animate={{ scale: 1, color: "#eab308" }}
                           className="text-2xl font-black italic"
                         >
-                          {(campaignProgress.totalScore + gameState.score).toLocaleString()}
+                          {(
+                            campaignProgress.totalScore + gameState.score
+                          ).toLocaleString()}
                         </motion.p>
                       </div>
                     </div>
                   )}
                 </header>
               </section>
-              
-              <GameCanvas 
+
+              <GameCanvas
                 levelData={levelData}
                 character={character}
                 controls={controls}
                 onStateChange={setGameState}
                 onWin={handleFinishLevel}
-                onGameOver={() => setMode('GAME_OVER')}
+                onGameOver={() => setMode("GAME_OVER")}
               />
 
-              <AbilityOverlay 
-                active={gameState.player?.invincibilityTime > 0} 
-                abilityName={CHARACTERS[character].abilityName} 
+              <AbilityOverlay
+                active={(gameState.player?.invincibilityTime ?? 0) > 0}
+                abilityName={selectedCharacter.abilityName}
               />
 
-              {/* Control Hints Overlay */}
-              <section className="grid grid-cols-1 md:grid-cols-4 gap-4" aria-label="Control Hints and Unit Status">
-                 <article className="p-5 bg-white/5 rounded-3xl border border-white/5 tech-border space-y-4">
-                    <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-[0.2em] text-white/30">
-                       <span>SYS_LOG: Ability_Link</span>
-                       <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" aria-hidden="true" />
+              <section
+                className="grid grid-cols-1 gap-4 md:grid-cols-4"
+                aria-label="Control hints and unit status"
+              >
+                <article className="tech-border space-y-4 rounded-3xl border border-white/5 bg-white/5 p-5">
+                  <div className="flex items-center justify-between text-[9px] font-black uppercase tracking-[0.2em] text-white/30">
+                    <span>SYS_LOG: Ability_Link</span>
+                    <span
+                      className="h-2 w-2 animate-pulse rounded-full bg-green-500"
+                      aria-hidden="true"
+                    />
+                  </div>
+
+                  <div
+                    className="h-2 w-full overflow-hidden rounded-full bg-white/5"
+                    role="progressbar"
+                    aria-label="Ability cooldown"
+                    aria-valuenow={Math.round(abilityProgress)}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                  >
+                    <motion.div
+                      initial={false}
+                      animate={{ width: `${abilityProgress}%` }}
+                      className="h-full bg-gradient-to-r from-blue-600 to-blue-400"
+                    />
+                  </div>
+
+                  <div>
+                    <p className="text-xs font-black italic uppercase tracking-tight text-white/90">
+                      {selectedCharacter.abilityName}
+                    </p>
+                    <p className="mt-1 text-[9px] font-bold uppercase tracking-widest text-blue-500">
+                      Press [X] to trigger
+                    </p>
+                  </div>
+                </article>
+
+                <article className="glass-panel flex items-center justify-between rounded-3xl border border-white/5 p-5 md:col-span-2">
+                  <div className="flex items-center gap-5">
+                    <div className="group relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-white/5">
+                      <User
+                        size={28}
+                        className="text-white/40 transition-transform group-hover:scale-110"
+                        aria-hidden="true"
+                      />
+                      <div
+                        className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent"
+                        aria-hidden="true"
+                      />
                     </div>
-                    <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden" role="progressbar" aria-label="Ability Cooldown">
-                       <motion.div 
-                        initial={false}
-                        animate={{ width: `${gameState.player ? (1 - gameState.player.abilityCooldown / CHARACTERS[character].abilityCooldown) * 100 : 100}%` }}
-                        className="h-full bg-gradient-to-r from-blue-600 to-blue-400 transition-all duration-300" 
-                       />
-                    </div>
-                    <div>
-                       <p className="text-xs font-black italic uppercase tracking-tight text-white/90">{CHARACTERS[character].abilityName}</p>
-                       <p className="text-[9px] font-bold text-blue-500 uppercase tracking-widest mt-1">Press [X] to trigger</p>
-                    </div>
-                 </article>
-                 
-                 <article className="md:col-span-2 glass-panel rounded-3xl p-5 border border-white/5 flex items-center justify-between">
-                    <div className="flex items-center gap-5">
-                       <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-white/5 border border-white/10 group overflow-hidden relative">
-                          <User size={28} className="text-white/40 group-hover:scale-110 transition-transform" aria-hidden="true" />
-                          <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent" />
-                       </div>
-                       <div className="space-y-1">
-                          <p className="text-[10px] font-black uppercase text-white/20 tracking-[0.3em]">Operational_Hero</p>
-                          <h4 className="text-xl font-black italic uppercase tracking-tighter">{CHARACTERS[character].name}</h4>
-                          <div className="flex gap-2">
-                             {(CHARACTERS[character].description || "Base Unit").split(' ').map((word, i) => (
-                               <span key={i} className="text-[8px] px-2 py-0.5 bg-white/5 rounded text-white/40 font-bold uppercase">{word}</span>
-                             ))}
-                          </div>
-                       </div>
-                    </div>
-                    <div className="flex items-end flex-col gap-1">
-                       <span className="text-[9px] font-black text-white/20 uppercase tracking-widest">Movement_Pwr</span>
-                       <div className="flex gap-1" role="img" aria-label={`Speed rating: ${CHARACTERS[character].speed} out of 5`}>
-                          {[1,2,3,4,5].map(i => (
-                             <div key={i} className={`w-1.5 h-4 rounded-sm ${i <= CHARACTERS[character].speed ? 'bg-blue-500' : 'bg-white/5'}`} />
+
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20">
+                        Operational_Hero
+                      </p>
+
+                      <h4 className="text-xl font-black italic uppercase tracking-tighter">
+                        {selectedCharacter.name}
+                      </h4>
+
+                      <div className="flex flex-wrap gap-2">
+                        {(selectedCharacter.description || "Base Unit")
+                          .split(" ")
+                          .map((word, index) => (
+                            <span
+                              key={`${word}-${index}`}
+                              className="rounded bg-white/5 px-2 py-0.5 text-[8px] font-bold uppercase text-white/40"
+                            >
+                              {word}
+                            </span>
                           ))}
-                       </div>
+                      </div>
                     </div>
-                 </article>
+                  </div>
 
-                 <article className="p-5 tech-border rounded-3xl flex items-center justify-center gap-8">
-                    <div className="flex flex-col items-center gap-2">
-                       <div className="p-3 bg-white/5 rounded-xl border border-white/10">
-                          <Play size={20} className="text-white/40" aria-hidden="true" />
-                       </div>
-                       <span className="text-[8px] font-black uppercase text-white/20 tracking-widest">Run: WASD</span>
+                  <div className="flex flex-col items-end gap-1">
+                    <span className="text-[9px] font-black uppercase tracking-widest text-white/20">
+                      Movement_Pwr
+                    </span>
+
+                    <div
+                      className="flex gap-1"
+                      role="img"
+                      aria-label={`Speed rating: ${selectedCharacter.speed} out of 5`}
+                    >
+                      {[1, 2, 3, 4, 5].map((rating) => (
+                        <div
+                          key={rating}
+                          className={`h-4 w-1.5 rounded-sm ${
+                            rating <= selectedCharacter.speed
+                              ? "bg-blue-500"
+                              : "bg-white/5"
+                          }`}
+                        />
+                      ))}
                     </div>
-                    <div className="flex flex-col items-center gap-2">
-                       <div className="p-3 bg-white/5 rounded-xl border border-white/10">
-                          <Star size={20} className="text-white/40" aria-hidden="true" />
-                       </div>
-                       <span className="text-[8px] font-black uppercase text-white/20 tracking-widest">Jump: Space</span>
+                  </div>
+                </article>
+
+                <article className="tech-border flex items-center justify-center gap-8 rounded-3xl p-5">
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                      <Play
+                        size={20}
+                        className="text-white/40"
+                        aria-hidden="true"
+                      />
                     </div>
-                 </article>
+                    <span className="text-[8px] font-black uppercase tracking-widest text-white/20">
+                      Run: WASD
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                      <Star
+                        size={20}
+                        className="text-white/40"
+                        aria-hidden="true"
+                      />
+                    </div>
+                    <span className="text-[8px] font-black uppercase tracking-widest text-white/20">
+                      Jump: Space
+                    </span>
+                  </div>
+                </article>
               </section>
             </motion.div>
           )}
 
-          {mode === 'EDITOR' && (
-            <motion.div 
-               key="editor"
-               initial={{ opacity: 0 }}
-               animate={{ opacity: 1 }}
-               exit={{ opacity: 0 }}
-               className="space-y-6"
-            >
-               <Editor 
-                initialLevel={levelData} 
-                onSave={(data) => {
-                  setLevelData(data);
-                  setMode('MENU');
-                }} 
-                onShare={(code) => {
-                  navigator.clipboard.writeText(code);
-                }}
-               />
-            </motion.div>
-          )}
-
-          {(mode === 'GAME_OVER' || mode === 'WIN') && (
-            <motion.div 
-              key="end"
+          {mode === "EDITOR" && (
+            <motion.div
+              key="editor"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[100] flex items-center justify-center p-6 sm:p-12 overflow-hidden"
+              className="space-y-6"
+            >
+              <Editor
+                initialLevel={levelData}
+                onSave={(data) => {
+                  setLevelData(data);
+                  setMode("MENU");
+                  setStatusMessage({
+                    text: "MISSION_DATA_SAVED",
+                    type: "SUCCESS",
+                  });
+                }}
+                onShare={handleEditorShare}
+              />
+            </motion.div>
+          )}
+
+          {isEndScreen && (
+            <motion.div
+              key={`${mode}-${campaignProgress.currentLevel}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden p-6 sm:p-12"
               role="dialog"
               aria-modal="true"
               aria-labelledby="mission-status-title"
             >
-              <div className="absolute inset-0 bg-[#050505]/95 backdrop-blur-3xl" />
-              <div className="scanline" />
-              
-              <motion.div 
+              <div
+                className="absolute inset-0 bg-[#050505]/95 backdrop-blur-3xl"
+                aria-hidden="true"
+              />
+              <div className="scanline" aria-hidden="true" />
+
+              <motion.div
                 initial={{ scale: 0.9, y: 20 }}
                 animate={{ scale: 1, y: 0 }}
-                className="relative glass-panel tech-border rounded-[64px] p-12 max-w-2xl w-full space-y-12 text-center"
+                className="tech-border glass-panel relative w-full max-w-2xl space-y-12 rounded-[64px] p-8 text-center sm:p-12"
               >
                 <header className="space-y-6">
-                  {mode === 'WIN' ? (
+                  {mode === "WIN" ? (
                     <div className="space-y-8">
-                       <motion.div 
-                        animate={{ rotate: [12, -12, 12], scale: [1, 1.1, 1] }}
+                      <motion.div
+                        animate={{
+                          rotate: [12, -12, 12],
+                          scale: [1, 1.1, 1],
+                        }}
                         transition={{ repeat: Infinity, duration: 4 }}
-                        className="w-32 h-32 bg-yellow-500 rounded-[40px] mx-auto flex items-center justify-center shadow-[0_30px_60px_rgba(234,179,8,0.4)] border-4 border-black"
+                        className="mx-auto flex h-32 w-32 items-center justify-center rounded-[40px] border-4 border-black bg-yellow-500 shadow-[0_30px_60px_rgba(234,179,8,0.4)]"
                       >
-                        <Trophy size={64} className="text-black" aria-hidden="true" />
+                        <Trophy
+                          size={64}
+                          className="text-black"
+                          aria-hidden="true"
+                        />
                       </motion.div>
+
                       <div className="space-y-2">
-                        <h2 id="mission-status-title" className="text-8xl font-black italic uppercase tracking-tighter leading-none glitch-text" data-text="MISSION_COMPLETE">MISSION_COMPLETE</h2>
-                        <p className="text-[10px] font-black text-yellow-500 uppercase tracking-[0.5em]">Sector Cleared // Authorization Verified</p>
+                        <h2
+                          id="mission-status-title"
+                          className="glitch-text break-words text-5xl leading-none font-black italic uppercase tracking-tighter sm:text-7xl lg:text-8xl"
+                          data-text="MISSION_COMPLETE"
+                        >
+                          MISSION_COMPLETE
+                        </h2>
+                        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-yellow-500 sm:tracking-[0.5em]">
+                          Sector Cleared // Authorization Verified
+                        </p>
                       </div>
                     </div>
                   ) : (
                     <div className="space-y-8">
-                      <motion.div 
+                      <motion.div
                         animate={{ y: [-10, 10, -10] }}
                         transition={{ repeat: Infinity, duration: 2 }}
-                        className="w-32 h-32 bg-red-600 rounded-[40px] mx-auto flex items-center justify-center shadow-[0_30px_60px_rgba(220,38,38,0.4)] border-4 border-black"
+                        className="mx-auto flex h-32 w-32 items-center justify-center rounded-[40px] border-4 border-black bg-red-600 shadow-[0_30px_60px_rgba(220,38,38,0.4)]"
                       >
-                        <AlertCircle size={64} className="text-white" aria-hidden="true" />
+                        <AlertCircle
+                          size={64}
+                          className="text-white"
+                          aria-hidden="true"
+                        />
                       </motion.div>
+
                       <div className="space-y-2">
-                        <h2 id="mission-status-title" className="text-8xl font-black italic uppercase tracking-tighter leading-none glitch-text" data-text="UNIT_TERMINATED">UNIT_TERMINATED</h2>
-                        <p className="text-[10px] font-black text-red-500 uppercase tracking-[0.5em]">Critical Failure // Connection Lost</p>
+                        <h2
+                          id="mission-status-title"
+                          className="glitch-text break-words text-5xl leading-none font-black italic uppercase tracking-tighter sm:text-7xl lg:text-8xl"
+                          data-text="UNIT_TERMINATED"
+                        >
+                          UNIT_TERMINATED
+                        </h2>
+                        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-red-500 sm:tracking-[0.5em]">
+                          Critical Failure // Connection Lost
+                        </p>
                       </div>
                     </div>
                   )}
                 </header>
 
-                <section className="grid grid-cols-1 md:grid-cols-2 gap-6" role="status" aria-label="Mission Statistics">
-                  <article className="p-8 bg-white/5 rounded-[32px] border border-white/5 space-y-2 group hover:bg-white/10 transition-all">
-                    <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Resource_Secured</p>
+                <section
+                  className="grid grid-cols-1 gap-6 md:grid-cols-2"
+                  aria-label="Mission statistics"
+                >
+                  <article className="group space-y-2 rounded-[32px] border border-white/5 bg-white/5 p-8 transition-colors hover:bg-white/10">
+                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20">
+                      Resource_Secured
+                    </p>
+
                     <div className="flex items-center justify-center gap-3">
-                       <Coins size={20} className="text-yellow-400" aria-hidden="true" />
-                       <p className="text-4xl font-black italic tracking-tighter">{gameState.coins.toString().padStart(3, '0')}</p>
+                      <Coins
+                        size={20}
+                        className="text-yellow-400"
+                        aria-hidden="true"
+                      />
+                      <p className="text-4xl font-black italic tracking-tighter">
+                        {gameState.coins.toString().padStart(3, "0")}
+                      </p>
                     </div>
                   </article>
-                  <article className="p-8 bg-white/5 rounded-[32px] border border-white/5 space-y-2 group hover:bg-white/10 transition-all">
-                    <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Performance_Rating</p>
+
+                  <article className="group space-y-2 rounded-[32px] border border-white/5 bg-white/5 p-8 transition-colors hover:bg-white/10">
+                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20">
+                      Performance_Rating
+                    </p>
+
                     <div className="flex items-center justify-center gap-3">
-                       <Star size={20} className="text-blue-400" aria-hidden="true" />
-                       <p className="text-4xl font-black italic tracking-tighter">{gameState.score.toLocaleString()}</p>
+                      <Star
+                        size={20}
+                        className="text-blue-400"
+                        aria-hidden="true"
+                      />
+                      <p className="text-4xl font-black italic tracking-tighter">
+                        {gameState.score.toLocaleString()}
+                      </p>
                     </div>
                   </article>
-                  
+
                   {campaignProgress.currentLevel > 0 && (
-                    <article className="md:col-span-2 p-8 bg-white/5 border border-white/10 rounded-[40px] flex flex-col items-center gap-4 group">
-                       <div className="w-full flex justify-between items-center px-4">
-                          <p className="text-[10px] font-black text-white/30 uppercase tracking-widest leading-none">Campaign_Log_0{(campaignProgress.currentLevel + 1)}</p>
-                          <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest bg-blue-500/10 px-4 py-1 rounded-full border border-blue-500/20">TOTAL: {campaignProgress.totalScore.toLocaleString()}</span>
-                       </div>
-                       <h4 className="text-4xl font-black italic uppercase tracking-tighter text-white/90">
-                         Reached_Sector {Math.floor(campaignProgress.currentLevel / 4) + 1}-{(campaignProgress.currentLevel % 4) + 1}
-                       </h4>
-                       <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden" role="progressbar" aria-label="Campaign Progress" aria-valuenow={campaignProgress.currentLevel + 1} aria-valuemin={1} aria-valuemax={10}>
-                          <motion.div 
-                            initial={{ width: 0 }}
-                            animate={{ width: `${((campaignProgress.currentLevel + 1) / 10) * 100}%` }}
-                            className="h-full bg-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.5)]"
-                          />
-                       </div>
+                    <article className="group flex flex-col items-center gap-4 rounded-[40px] border border-white/10 bg-white/5 p-8 md:col-span-2">
+                      <div className="flex w-full items-center justify-between px-4">
+                        <p className="text-[10px] leading-none font-black uppercase tracking-widest text-white/30">
+                          Campaign_Log_0{campaignLevelNumber}
+                        </p>
+
+                        <span className="rounded-full border border-blue-500/20 bg-blue-500/10 px-4 py-1 text-[10px] font-black uppercase tracking-widest text-blue-500">
+                          TOTAL: {campaignProgress.totalScore.toLocaleString()}
+                        </span>
+                      </div>
+
+                      <h4 className="text-4xl font-black italic uppercase tracking-tighter text-white/90">
+                        Reached_Sector{" "}
+                        {Math.floor(campaignProgress.currentLevel / 4) + 1}-
+                        {(campaignProgress.currentLevel % 4) + 1}
+                      </h4>
+
+                      <div
+                        className="h-1.5 w-full overflow-hidden rounded-full bg-white/5"
+                        role="progressbar"
+                        aria-label="Campaign progress"
+                        aria-valuenow={campaignLevelNumber}
+                        aria-valuemin={1}
+                        aria-valuemax={TOTAL_CAMPAIGN_LEVELS}
+                      >
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${campaignPercentage}%` }}
+                          className="h-full bg-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.5)]"
+                        />
+                      </div>
                     </article>
                   )}
                 </section>
 
-                <nav className="flex flex-col sm:flex-row gap-4" aria-label="End game actions">
-                  <button 
-                    onClick={handleStartGame}
-                    aria-label="Reboot Mission"
-                    className="flex-1 py-6 bg-white text-black rounded-3xl font-black uppercase italic tracking-widest text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-white/10 flex items-center justify-center gap-3"
+                <nav
+                  className="flex flex-col gap-4 sm:flex-row"
+                  aria-label="End game actions"
+                >
+                  <button
+                    type="button"
+                    onClick={handleReplay}
+                    aria-label="Reboot mission"
+                    className="flex flex-1 items-center justify-center gap-3 rounded-3xl bg-white py-6 text-sm font-black italic uppercase tracking-widest text-black shadow-xl shadow-white/10 transition-all hover:scale-[1.02] active:scale-95"
                   >
                     <RefreshCw size={18} aria-hidden="true" />
                     REBOOT_MISSION
                   </button>
-                  <button 
-                    onClick={() => setMode('MENU')}
-                    aria-label="Return to Base"
-                    className="flex-1 py-6 bg-white/5 hover:bg-white/10 border border-white/10 rounded-3xl font-black uppercase italic tracking-widest text-sm transition-all flex items-center justify-center gap-3"
+
+                  <button
+                    type="button"
+                    onClick={handleReturnToMenu}
+                    aria-label="Return to base"
+                    className="flex flex-1 items-center justify-center gap-3 rounded-3xl border border-white/10 bg-white/5 py-6 text-sm font-black italic uppercase tracking-widest transition-colors hover:bg-white/10"
                   >
                     <Settings size={18} aria-hidden="true" />
                     RETURN_TO_BASE
                   </button>
                 </nav>
-                
-                <div className="absolute top-12 left-12 opacity-5 pointer-events-none" aria-hidden="true">
-                   <Star size={200} />
+
+                <div
+                  className="pointer-events-none absolute top-12 left-12 opacity-5"
+                  aria-hidden="true"
+                >
+                  <Star size={200} />
                 </div>
               </motion.div>
             </motion.div>
@@ -476,9 +952,7 @@ export default function App() {
         </AnimatePresence>
       </main>
 
-      {/* Footer Decoration */}
       <Footer />
     </div>
   );
 }
-
